@@ -271,7 +271,12 @@ class Admin {
 	public function page_edit_form() {
 		$active_tab = ! empty( $_GET['tab'] ) ? $_GET['tab'] : 'fields';
 		$form_id    = (int) $_GET['form_id'];
-		$form       = cf_get_form( $form_id );
+		try {
+			$form = cf_get_form( $form_id );
+		} catch ( \Exception $e ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=core-forms' ) );
+			exit;
+		}
 		$settings   = cf_get_settings();
 		require dirname( $this->plugin_file ) . '/views/page-edit-form.php';
 	}
@@ -372,7 +377,12 @@ class Admin {
 
 	public function process_save_form() {
 		$form_id = (int) $_POST['form_id'];
-		$form    = cf_get_form( $form_id );
+		try {
+			$form = cf_get_form( $form_id );
+		} catch ( \Exception $e ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=core-forms' ) );
+			exit;
+		}
 		$data    = $_POST['form'];
 
 		// Fix for MultiSite stripping KSES for roles other than administrator
