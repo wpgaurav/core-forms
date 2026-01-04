@@ -39,8 +39,6 @@ class Forms {
         add_action( 'init', array( $this, 'register_shortcode' ) );
         add_action( 'init', array( $this, 'register_assets' ) );
         add_action( 'template_redirect', array( $this, 'listen_for_preview' ) );
-        add_filter( 'mce_external_plugins', array( $this, 'register_mce_plugin' ) );
-        add_filter( 'mce_buttons', array( $this, 'register_mce_button' ) );
     }
 
     public function register() {
@@ -176,16 +174,6 @@ class Forms {
                 $forms
             )
         );
-    }
-
-    public function register_mce_plugin( $plugins ) {
-        $plugins['core_forms'] = plugins_url( 'assets/js/admin-mce.js', $this->plugin_file );
-        return $plugins;
-    }
-
-    public function register_mce_button( $buttons ) {
-        $buttons[] = 'cf_form';
-        return $buttons;
     }
 
     public function process() {
