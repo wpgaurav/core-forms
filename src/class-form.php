@@ -62,6 +62,7 @@ class Form {
             $html .= wp_nonce_field( 'core_forms_submit', '_wpnonce', true, false );
         }
 
+        $html .= '<input type="hidden" name="action" value="cf_form_submit" />';
         $html .= sprintf( '<input type="hidden" name="_cf_form_id" value="%d" />', $this->ID );
         $html .= sprintf( '<div style="display: none;"><input type="text" name="_cf_h%d" value="" /></div>', $this->ID );
         $html .= '<div class="cf-fields-wrap">';
