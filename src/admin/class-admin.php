@@ -364,7 +364,7 @@ class Admin {
 		$form_title = sanitize_text_field( $data['title'] );
 		$form_id    = wp_insert_post(
 			array(
-				'post_type'    => 'html-form',
+				'post_type'    => 'core-form',
 				'post_status'  => 'publish',
 				'post_title'   => $form_title,
 				'post_content' => $this->get_default_form_content(),
@@ -399,7 +399,7 @@ class Admin {
 		$form_id = wp_insert_post(
 			array(
 				'ID'           => $form_id,
-				'post_type'    => 'html-form',
+				'post_type'    => 'core-form',
 				'post_status'  => 'publish',
 				'post_title'   => sanitize_text_field( $data['title'] ),
 				'post_content' => $data['markup'],

@@ -267,7 +267,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 					array(
 						'post_title'   => $post->post_title,
 						'post_content' => $post->post_content,
-						'post_type'    => 'html-form',
+						'post_type'    => 'core-form',
 						'post_status'  => 'publish',
 					)
 				);
