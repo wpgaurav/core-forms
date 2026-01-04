@@ -12,7 +12,7 @@ use Core_Forms\Submission;
 function cf_get_forms( array $args = array() ) {
     $default_args = array(
         'post_type'           => 'core-form',
-        'post_status'         => array( 'publish', 'draft', 'pending', 'future' ),
+        'post_status'         => 'any',
         'posts_per_page'      => -1,
         'ignore_sticky_posts' => true,
         'no_found_rows'       => true,

@@ -70,7 +70,8 @@ if ( class_exists( 'WP_List_Table' ) ) {
 			$count_any = ( isset( $counts->publish ) ? $counts->publish : 0 )
 			           + ( isset( $counts->draft ) ? $counts->draft : 0 )
 			           + ( isset( $counts->future ) ? $counts->future : 0 )
-			           + ( isset( $counts->pending ) ? $counts->pending : 0 );
+			           + ( isset( $counts->pending ) ? $counts->pending : 0 )
+			           + ( isset( $counts->private ) ? $counts->private : 0 );
 			$count_trash = isset( $counts->trash ) ? $counts->trash : 0;
 
 			return array(
