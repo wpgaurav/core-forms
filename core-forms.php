@@ -8,6 +8,7 @@ Author: developer developer
 Author URI: https://developer.developer
 License: GPL v3
 Text Domain: core-forms
+Domain Path: /languages
 Requires at least: 6.0
 Requires PHP: 7.4
 
@@ -41,8 +42,13 @@ define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
+// Load autoloader early (but don't use translations)
+if ( ! function_exists( 'cf_get_form' ) ) {
+    require __DIR__ . '/vendor/autoload.php';
+}
+
 /**
- * Bootstrap the plugin
+ * Bootstrap the plugin - runs at init to ensure translations are loaded
  */
 function _bootstrap() {
     $settings = cf_get_settings();
@@ -73,6 +79,9 @@ function _bootstrap() {
 
     // Load premium features (now integrated)
     _load_premium_features();
+    
+    // Initialize form actions
+    _cf_actions();
 }
 
 /**
@@ -120,14 +129,8 @@ function _cf_actions() {
     }
 }
 
-// Load autoloader
-if ( ! function_exists( 'cf_get_form' ) ) {
-    require __DIR__ . '/vendor/autoload.php';
-}
-
-// Hook into WordPress
-add_action( 'plugins_loaded', 'Core_Forms\\_bootstrap', 10 );
-add_action( 'init', 'Core_Forms\\_cf_actions', 10 );
+// Hook into WordPress at init (priority 1 to run early but after translations are available)
+add_action( 'init', 'Core_Forms\\_bootstrap', 1 );
 
 // Activation hook
 register_activation_hook( __FILE__, '_cf_on_plugin_activation' );

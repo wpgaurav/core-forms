@@ -8,7 +8,7 @@ $tabs = cf_get_admin_tabs($form);
 
     <p class="breadcrumbs">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
-        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">HTML Forms</a> &rsaquo;
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">Core Forms</a> &rsaquo;
         <span class="current-crumb"><strong><?php _e( 'Edit Form', 'core-forms' ); ?></strong></span>
     </p>
 

@@ -5,12 +5,6 @@ $available_actions = $this->get_available_form_actions();
 <div>
     <h2><?php echo __( 'Form Actions', 'core-forms' ); ?></h2>
 
-    <?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-    <p class="cf-premium">
-        <?php echo sprintf( __('Notify other services whenever a form is submitted using the Webhooks form action in <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=actions-tab' ); ?>.
-    </p>
-    <?php endif; ?>
-
     <div id="cf-form-actions">
         <?php
         if( ! empty( $form->settings['actions'] ) ) {

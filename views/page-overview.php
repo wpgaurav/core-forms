@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) or exit;
 
     <p class="breadcrumbs">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
-        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">HTML Forms</a> &rsaquo;
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">Core Forms</a> &rsaquo;
         <span class="current-crumb"><strong><?php _e( 'Forms', 'core-forms' ); ?></strong></span>
     </p>
 

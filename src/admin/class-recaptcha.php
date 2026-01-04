@@ -246,7 +246,7 @@ class Recaptcha {
      */
     private function log_debug( $message, $form = null ) {
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            $log_message = '[HTML Forms reCAPTCHA] ' . $message;
+            $log_message = '[Core Forms reCAPTCHA] ' . $message;
             if ( $form ) {
                 $log_message .= sprintf( ' (Form: "%s", ID: %d)', $form->title, $form->ID );
             }
@@ -291,7 +291,7 @@ class Recaptcha {
      * Show admin notice when reCAPTCHA is active
      */
     public function show_admin_notice() {
-        // Only show on HTML Forms pages, not every admin page
+        // Only show on Core Forms pages, not every admin page
         if ( empty( $_GET['page'] ) || $_GET['page'] !== 'core-forms' || empty( $_GET['form_id'] ) ) {
             return;
         }

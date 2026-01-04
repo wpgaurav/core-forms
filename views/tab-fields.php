@@ -1,10 +1,5 @@
 <div class="cf-small-margin">
 	<div id="cf-field-builder"></div>
-    <?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-    <p class="cf-premium">
-        <?php echo sprintf( __('Add a File Upload field with <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=fields-tab' ); ?>.
-    </p>
-    <?php endif; ?>
 </div>
 
 <div class="cf-small-margin">

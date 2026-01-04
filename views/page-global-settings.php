@@ -4,7 +4,7 @@
 
     <p class="breadcrumbs">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
-        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">HTML Forms</a> &rsaquo;
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">Core Forms</a> &rsaquo;
         <span class="current-crumb"><strong><?php _e( 'Settings', 'core-forms' ); ?></strong></span>
     </p>
 
@@ -24,7 +24,6 @@
                         <tr valign="top">
                             <th scope="row">
                                 <?php _e( 'Enable Nonce', 'core-forms' ); ?>
-                                <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/enable-nonce/"><span class="dashicons dashicons-editor-help"></span></a>
                             </th>
                             <td>
                                 <label><input type="radio" name="cf_settings[enable_nonce]" value="1" <?php checked( $settings['enable_nonce'], 1 ); ?>> <?php _e( 'Yes' ); ?></label> &nbsp;
@@ -32,8 +31,7 @@
 
                                 <p class="description">
                                     <?php _e( 'Select "Yes" to include a nonce field in each of your forms.', 'core-forms' ); ?><br>
-                                    If your website uses a caching plugin or service, you may need to select "No" to prevent submission issues.<br>
-                                    <a target="_blank" tabindex="-1" href="https://htmlformsplugin.com/kb/enable-nonce/"><?php _e( 'Learn more at the HTML Forms Knowledge Base', 'core-forms' ); ?></a>.
+                                    <?php _e( 'If your website uses a caching plugin or service, you may need to select "No" to prevent submission issues.', 'core-forms' ); ?>
                                 </p>
                             </td>
                         </tr>
@@ -46,7 +44,7 @@
                                 <label><input type="radio" name="cf_settings[load_stylesheet]" value="1" <?php checked( $settings['load_stylesheet'], 1 ); ?>> <?php _e( 'Yes' ); ?></label> &nbsp;
                                 <label><input type="radio"  name="cf_settings[load_stylesheet]" value="0"  <?php checked( $settings['load_stylesheet'], 0 ); ?>> <?php _e( 'No' ); ?></label>
 
-                                <p class="description"><?php _e( 'Select "Yes" to apply some basic form styles to all HTML Forms.', 'core-forms' ); ?></p>
+                                <p class="description"><?php _e( 'Select "Yes" to apply some basic form styles to all Core Forms forms.', 'core-forms' ); ?></p>
                             </td>
                         </tr>
 
@@ -66,7 +64,6 @@
 
                     <h2 class="title">
                         <?php echo _e('Google reCAPTCHA v3', 'core-forms'); ?>
-                        <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/google-recaptcha/"><span class="dashicons dashicons-editor-help"></span></a>
                     </h2>
 
                     <p class="description">

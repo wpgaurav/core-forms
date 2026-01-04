@@ -15,7 +15,7 @@ class GDPR {
 
 	public function register_exporter( $exporters ) {
 		$exporters['core-forms'] = array(
-			'exporter_friendly_name' => 'HTML Forms',
+			'exporter_friendly_name' => 'Core Forms',
 			'callback'               => array( $this, 'export' ),
 		);
 		return $exporters;
@@ -23,7 +23,7 @@ class GDPR {
 
 	public function register_eraser( $erasers ) {
 		$erasers['core-forms'] = array(
-			'eraser_friendly_name' => 'HTML Forms',
+			'eraser_friendly_name' => 'Core Forms',
 			'callback'             => array( $this, 'erase' ),
 		);
 		return $erasers;

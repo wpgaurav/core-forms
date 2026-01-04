@@ -1,11 +1,5 @@
 <h2><?php echo __( 'Form Settings', 'core-forms' ); ?></h2>
 
-<?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-    <p class="cf-premium">
-        <?php echo sprintf( __('Enable submission notifications, set a form submission limit, require users to login, and more with <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=actions-tab' ); ?>.
-    </p>
-<?php endif; ?>
-
 <table class="form-table">
     <tr valign="top">
         <th scope="row" colspan="2" class="cf-settings-header"><?php echo __( 'Submissions', 'core-forms' ); ?></th>
@@ -14,7 +8,6 @@
     <tr valign="top">
         <th scope="row">
             <?php _e( 'Save Form Submissions', 'core-forms' ); ?>
-            <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/save-form-submissions/"><span class="dashicons dashicons-editor-help"></span></a>
         </th>
         <td>
             <label><input type="radio" name="form[settings][save_submissions]" value="1" <?php checked( $form->settings['save_submissions'], 1 ); ?>> <?php _e( 'Yes' ); ?></label> &nbsp;
@@ -27,7 +20,6 @@
     <tr valign="top">
         <th scope="row">
             <?php _e( 'Hide Form After Successful Submission', 'core-forms' ); ?>
-            <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/hide-form-fields-after-submission/"><span class="dashicons dashicons-editor-help"></span></a>
         </th>
         <td class="nowrap">
             <label>
@@ -47,7 +39,6 @@
     <tr valign="top">
         <th scope="row">
             <label for="cf_form_redirect"><?php _e( 'Redirect to URL After Successful Submission', 'core-forms' ); ?></label>
-            <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/redirect-url-form-submission/"><span class="dashicons dashicons-editor-help"></span></a>
         </th>
         <td>
             <input type="text" class="widefat" name="form[settings][redirect_url]" id="cf_form_redirect" placeholder="<?php printf( __( 'Example: %s', 'core-forms' ), esc_attr( site_url( '/thank-you/' ) ) ); ?>" value="<?php echo esc_attr( $form->settings['redirect_url'] ); ?>" />

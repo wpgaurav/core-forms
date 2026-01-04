@@ -43,14 +43,7 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
 
 <h2>
     <?php _e( 'Form Submissions', 'core-forms' ); ?>
-    <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/form-submissions/"><span class="dashicons dashicons-editor-help"></span></a>
 </h2>
-
-<?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-<p class="cf-premium">
-    <?php echo sprintf( __('Export submissions to CSV, mark submissions as seen or unseen, and manage data columns with <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=submissions-tab' ); ?>.
-</p>
-<?php endif; ?>
 
 </form><?php // close main form. This means this always has to be the last tab or it will break stuff. ?>
 <form method="post">

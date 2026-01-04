@@ -18,10 +18,10 @@ class Admin
             <div class="submenu-toggle"></div>
             <div class="submenu">
                 <a class="#" href="<?php echo esc_attr(add_query_arg(array('_cf_admin_action' => 'rename_data_column', '_wpnonce' => wp_create_nonce('_cf_admin_action'), 'column_key' => $key ))); ?>" onclick="var newKey = prompt('New column name', '<?php echo esc_attr($key); ?>'); if(newKey) { this.href = this.href + '&new_column_key=' + newKey; }">
-                    <?php echo __('Rename Column', 'html-forms-data-management'); ?>
+                    <?php echo __('Rename Column', 'core-forms'); ?>
                 </a>
                 <a class="hf-danger" href="<?php echo esc_attr(add_query_arg(array( '_cf_admin_action' => 'delete_data_column', '_wpnonce' => wp_create_nonce('_cf_admin_action'), 'column_key' => $key ))); ?>" data-hf-confirm="<?php esc_attr_e('Are you sure you want to delete this column? All data will be lost.', 'core-forms'); ?>">
-                    <?php echo __('Delete Column', 'html-forms-data-management'); ?>
+                    <?php echo __('Delete Column', 'core-forms'); ?>
                 </a>
             </div>
         </div>

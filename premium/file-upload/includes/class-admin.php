@@ -23,7 +23,7 @@ class Admin
             return;
         }
 
-        wp_enqueue_script('html-forms-file-upload', plugins_url('assets/dist/js/admin.js', $this->plugin_file), array( 'html-forms-admin' ), HF_PREMIUM_VERSION, true);
+        wp_enqueue_script('core-forms-file-upload', plugins_url('assets/dist/js/admin.js', $this->plugin_file), array( 'core-forms-admin' ), CORE_FORMS_VERSION, true);
     }
 
     public function output_message_settings($form)

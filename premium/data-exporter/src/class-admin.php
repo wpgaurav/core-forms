@@ -30,7 +30,7 @@ class Admin
     public function process_export()
     {
         $form_id = (int) $_GET['form_id'];
-        $filename = "html-forms-submissions-".$form_id.".csv";
+        $filename = "core-forms-submissions-".$form_id.".csv";
 
         header("Pragma: public");
         header("Expires: 0");

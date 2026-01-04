@@ -2,7 +2,7 @@
 /**
  * Core Forms 2.0.0 Migration
  * 
- * This migration handles the transition from HTML Forms to Core Forms:
+ * This migration handles the transition from Core Forms to Core Forms:
  * 1. Rename database table from hf_submissions to cf_submissions
  * 2. Update post type from html-form to core-form
  * 3. Update meta keys from _hf_ to _cf_
