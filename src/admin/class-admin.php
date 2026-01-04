@@ -216,8 +216,12 @@ class Admin {
 			return;
 		}
 
-		// don't run if form does not have submissions enabled
-		$form = cf_get_form( $_GET['form_id'] );
+		// don't run if form does not exist or does not have submissions enabled
+		try {
+			$form = cf_get_form( $_GET['form_id'] );
+		} catch ( Exception $e ) {
+			return;
+		}
 		if ( ! $form->settings['save_submissions'] ) {
 			return;
 		}
