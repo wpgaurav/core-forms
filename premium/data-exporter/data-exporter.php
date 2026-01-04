@@ -1,6 +1,6 @@
 <?php
 
-namespace HTML_Forms\Data_Exporter;
+namespace Core_Forms\Data_Exporter;
 
 if (is_admin() && ( ! defined('DOING_AJAX') || ! DOING_AJAX )) {
     require __DIR__ . '/src/class-admin.php';

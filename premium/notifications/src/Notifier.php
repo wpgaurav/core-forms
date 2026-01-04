@@ -1,12 +1,12 @@
 <?php
 
-namespace HTML_Forms\Notifications;
+namespace Core_Forms\Notifications;
 
 class Notifier {
 	
 	public function hook() {
-		add_filter( 'hf_form_default_settings', array( $this, 'default_form_settings' ) );
-		add_action( 'hf_form_success', array( $this, 'increment_notification_count' ), 10, 2 );
+		add_filter( 'cf_form_default_settings', array( $this, 'default_form_settings' ) );
+		add_action( 'cf_form_success', array( $this, 'increment_notification_count' ), 10, 2 );
 	}
 
 	public function default_form_settings( $defaults ) {

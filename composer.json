@@ -1,0 +1,28 @@
+{
+    "name": "developer-developer/core-forms",
+    "description": "A simpler, faster, and smarter WordPress forms plugin with premium features included.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "developer developer",
+            "email": "developer@developer.developer",
+            "homepage": "https://developer.developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ],
+        "files": [
+            "src/functions.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

@@ -1,433 +1,469 @@
 <?php
 
-namespace HTML_Forms;
+namespace Core_Forms;
 
 class Forms {
+    /**
+     * @var string
+     */
+    private $plugin_file;
 
+    /**
+     * @var array
+     */
+    private $settings;
 
-	/**
-	 * @var string
-	 */
-	private $plugin_file;
+    /**
+    * @var string
+    */
+    private $assets_url;
 
-	/**
-	 * @var array
-	 */
-	private $settings;
+    /**
+     * Forms constructor.
+     *
+     * @param string $plugin_file
+     * @param array $settings
+     */
+    public function __construct( $plugin_file, array $settings = array() ) {
+        $this->plugin_file = $plugin_file;
+        $this->settings    = $settings;
+    }
 
-	/**
-	 * Forms constructor.
-	 *
-	 * @param string $plugin_file
-	 * @param array $settings
-	 */
-	public function __construct( $plugin_file, array $settings ) {
-		$this->plugin_file = $plugin_file;
-		$this->settings    = $settings;
-	}
+    public function hook() {
+        add_action( 'wp_ajax_cf_form_submit', array( $this, 'process' ) );
+        add_action( 'wp_ajax_nopriv_cf_form_submit', array( $this, 'process' ) );
+        add_action( 'init', array( $this, 'register' ) );
 
-	public function hook() {
-		add_action( 'init', array( $this, 'register' ) );
-        add_action( 'wp_ajax_hf_form_submit', array( $this, 'listen_for_submit' ) );
-        add_action( 'wp_ajax_nopriv_hf_form_submit', array( $this, 'listen_for_submit' ) );
-		add_action( 'init', array( $this, 'register_assets' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_action( 'parse_request', array( $this, 'listen_for_preview' ) );
-		add_filter( 'hf_form_markup', 'hf_template' );
-	}
+        add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
+        add_action( 'init', array( $this, 'block_init' ) );
+        add_action( 'init', array( $this, 'register_shortcode' ) );
+        add_action( 'init', array( $this, 'register_assets' ) );
+        add_action( 'template_redirect', array( $this, 'listen_for_preview' ) );
+        add_filter( 'mce_external_plugins', array( $this, 'register_mce_plugin' ) );
+        add_filter( 'mce_buttons', array( $this, 'register_mce_button' ) );
+    }
 
-	public function register() {
-		// register post type
-		register_post_type(
-			'html-form',
-			array(
-				'labels'          => array(
-					'name'          => 'HTML Forms',
-					'singular_name' => 'HTML Form',
-				),
-				'public'          => false,
-				'capability_type' => 'form',
-			)
-		);
+    public function register() {
+        register_post_type(
+            'core-form',
+            array(
+                'labels'       => array(
+                    'name'          => __( 'Core Forms', 'core-forms' ),
+                    'singular_name' => __( 'Core Form', 'core-forms' ),
+                ),
+                'public'       => false,
+                'show_in_rest' => true,
+                'map_meta_cap' => true,
+            )
+        );
+    }
 
-		if ( function_exists( 'register_block_type' ) ) {
-			register_block_type(
-				'html-forms/form',
-				array(
-					'render_callback' => array( $this, 'shortcode' ),
-				)
-			);
-		}
+    public function block_init() {
+        // Register Core Forms block
+        register_block_type(
+            'core-forms/form',
+            array(
+                'render_callback' => array( $this, 'shortcode' ),
+                'attributes'      => array(
+                    'slug' => array( 'type' => 'string' ),
+                    'id'   => array( 'type' => 'number' ),
+                ),
+            )
+        );
+    }
 
-		add_shortcode( 'hf_form', array( $this, 'shortcode' ) );
-	}
+    public function register_shortcode() {
+        add_shortcode( 'cf_form', array( $this, 'shortcode' ) );
+    }
 
-	public function register_assets() {
-		$assets_url = plugins_url( 'assets/', $this->plugin_file );
+    public function register_assets() {
+        $this->assets_url = plugins_url( '/assets/', $this->plugin_file );
 
-		wp_register_script( 'html-forms', $assets_url . 'js/public.js', array(), HTML_FORMS_VERSION, true );
-		wp_localize_script(
-			'html-forms',
-			'hf_js_vars',
-			array(
-				'ajax_url' => admin_url( 'admin-ajax.php?action=hf_form_submit' ),
-			)
-		);
+        wp_register_script( 'core-forms', $this->assets_url . 'js/forms.js', array(), CORE_FORMS_VERSION, true );
+        wp_localize_script(
+            'core-forms',
+            'cf_js_vars',
+            array(
+                'ajax_url' => admin_url( 'admin-ajax.php' ),
+            )
+        );
+        wp_register_style( 'core-forms', $this->assets_url . 'css/forms.css', array(), CORE_FORMS_VERSION );
+        add_filter( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_stylesheet' ) );
+    }
 
-		wp_register_style( 'html-forms', $assets_url . 'css/forms.css', array(), HTML_FORMS_VERSION );
-		add_filter( 'script_loader_tag', array( $this, 'add_defer_attribute' ), 10, 2 );
-	}
-
-	public function enqueue_assets() {
-		if ( $this->settings['load_stylesheet'] ) {
-			wp_enqueue_style( 'html-forms' );
-		}
-	}
-
-	/**
-	 * Adds defer attribute to our <script> element
-	 */
-	public function add_defer_attribute( $tag, $handle ) {
-		if ( $handle !== 'html-forms' ) {
-			return $tag;
-		}
-
-		return str_replace( ' src=', ' defer src=', $tag );
-	}
-	/**
-	 * @param Form $form
-	 * @param array $data
-	 * @return string
-	 */
-	public function validate_form( Form $form, array $data ) {
-		// validate honeypot field
-		$honeypot_key = sprintf( '_hf_h%d', $form->ID );
-		if ( ! isset( $data[ $honeypot_key ] ) || $data[ $honeypot_key ] !== '' ) {
-			return 'spam';
-		}
-
-		// validate size of POST array
-		if ( count( $data ) > $form->get_field_count() && apply_filters( 'hf_validate_form_request_size', true ) ) {
-			return 'spam';
-		}
-
-		$was_required    = (array) hf_array_get( $data, '_was_required', array() );
-		$required_fields = $form->get_required_fields();
-		foreach ( $required_fields as $field_name ) {
-			$value = hf_array_get( $data, $field_name );
-			if ( empty( $value ) && ! in_array( $field_name, $was_required ) ) {
-				return 'required_field_missing';
-			}
-		}
-
-		$email_fields = $form->get_email_fields();
-		foreach ( $email_fields as $field_name ) {
-			$value = hf_array_get( $data, $field_name );
-			if ( ! empty( $value ) && ! is_email( $value ) ) {
-				return 'invalid_email';
-			}
-		}
-
-		$error_code = '';
-
-		/**
-		 * This filter allows you to perform your own form validation. The dynamic portion of the hook refers to the form slug.
-		 *
-		 * Return a non-empty string if you want to raise an error.
-		 * Error codes with a specific error message are: "required_field_missing", "invalid_email", and "error"
-		 *
-		 * @param string $error_code
-		 * @param Form $form
-		 * @param array $data
-		 */
-		$error_code = apply_filters( 'hf_validate_form_' . $form->slug, $error_code, $form, $data );
-
-		/**
-		 * This filter allows you to perform your own form validation.
-		 *
-		 * Return a non-empty string if you want to raise an error.
-		 * Error codes with a specific error message are: "required_field_missing", "invalid_email", and "error"
-		 *
-		 * @param string $error_code
-		 * @param Form $form
-		 * @param array $data
-		 */
-		$error_code = apply_filters( 'hf_validate_form', $error_code, $form, $data );
-		if ( ! empty( $error_code ) ) {
-			return $error_code;
-		}
-
-		// all good: no errors!
-		return '';
-	}
-
-	/**
-	 * Sanitize array with values before saving. Can be called recursively.
-	 *
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function sanitize( $value ) {
-		if ( is_string( $value ) ) {
-			// do nothing if empty string
-			if ( $value === '' ) {
-				return $value;
-			}
-
-			// strip slashes
-			$value = stripslashes( $value );
-
-			// strip all whitespace
-			$value = trim( $value );
-
-			// convert &amp; back to &
-			$value = html_entity_decode( $value, ENT_NOQUOTES );
-		} elseif ( is_array( $value ) || is_object( $value ) ) {
-			$new_value = array();
-			$vars      = is_array( $value ) ? $value : get_object_vars( $value );
-
-			// do nothing if empty array or object
-			if ( count( $vars ) === 0 ) {
-				return $value;
-			}
-
-			foreach ( $vars as $key => $sub_value ) {
-				// strip all whitespace & HTML from keys (!)
-				$key = trim( strip_tags( $key ) );
-
-				// sanitize sub value
-				$new_value[ $key ] = $this->sanitize( $sub_value );
-			}
-
-			$value = is_object( $value ) ? (object) $new_value : $new_value;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_request_data() {
-		$data = $_POST;
-
-		if ( ! empty( $_FILES ) ) {
-			foreach ( $_FILES as $field_name => $file ) {
-				// only add non-empty files so that required field validation works as expected
-				// upload could still have errored at this point
-				if ( $file['error'] !== UPLOAD_ERR_NO_FILE ) {
-					$data[ $field_name ] = $file;
-				}
-			}
-		}
-
-		return $data;
-	}
-
-	public function listen_for_submit() {
-        // Check nonce only if enabled in settings
-        $nonce_check_failed = false;
-        if ( $this->settings['enable_nonce'] ) {
-            $nonce_check_failed = ! check_ajax_referer( 'html_forms_submit', '_wpnonce', false );
+    public function maybe_enqueue_stylesheet() {
+        if ( (int) $this->settings['load_stylesheet'] ) {
+            wp_enqueue_style( 'core-forms' );
         }
-        
-        if ( $nonce_check_failed || empty( $_POST['_hf_form_id'] ) ) {
+    }
+
+    /**
+     * @param array $attributes
+     *
+     * @return string
+     */
+    public function shortcode( $attributes = array() ) {
+        $attributes = shortcode_atts(
+            array(
+                'slug' => '',
+                'id'   => '',
+            ),
+            $attributes,
+            'cf_form'
+        );
+
+        // Grab form from slug or ID attribute
+        $form_id_or_slug = ! empty( $attributes['slug'] ) ? $attributes['slug'] : $attributes['id'];
+
+        // Allow filtering of form ID
+        $form_id_or_slug = apply_filters( 'cf_shortcode_form_identifier', $form_id_or_slug, $attributes );
+
+        // Bail early if no slug or ID is given
+        if ( empty( $form_id_or_slug ) ) {
+            return '';
+        }
+
+        try {
+            $form = cf_get_form( $form_id_or_slug );
+        } catch ( \Exception $e ) {
+            // swallow exception
+            return '';
+        }
+
+        return $form->get_html();
+    }
+
+    public function rest_api_init() {
+        $route = '/forms';
+        register_rest_route(
+            'cf',
+            $route,
+            array(
+                'methods'             => 'GET',
+                'callback'            => array( $this, 'rest_get_forms' ),
+                'permission_callback' => array( $this, 'rest_check_admin_permissions' ),
+            )
+        );
+    }
+
+    /**
+    * @return bool
+    */
+    public function rest_check_admin_permissions() {
+        return current_user_can( 'edit_forms' );
+    }
+
+    /**
+    * @return array
+    */
+    public function rest_get_forms() {
+        $forms = cf_get_forms();
+        return array_values(
+            array_map(
+                function ( Form $f ) {
+                    return array(
+                        'ID'    => $f->ID,
+                        'title' => $f->title,
+                        'slug'  => $f->slug,
+                    );
+                },
+                $forms
+            )
+        );
+    }
+
+    public function register_mce_plugin( $plugins ) {
+        $plugins['core_forms'] = plugins_url( 'assets/js/admin-mce.js', $this->plugin_file );
+        return $plugins;
+    }
+
+    public function register_mce_button( $buttons ) {
+        $buttons[] = 'cf_form';
+        return $buttons;
+    }
+
+    public function process() {
+        // validate honeypot field
+        $honeypot_key = null;
+        foreach ( $_POST as $key => $_value ) {
+            if ( strpos( $key, '_cf_h' ) === 0 ) {
+                $honeypot_key = $key;
+                break;
+            }
+        }
+
+        // if honeypot field not found, just ignore request
+        if ( $honeypot_key === null || '' !== $_POST[ $honeypot_key ] ) {
+            return;
+        }
+
+        // if nonces are enabled, make sure we have a valid one
+        $settings = cf_get_settings();
+        if ( $settings['enable_nonce'] && ! check_ajax_referer( 'core_forms_submit', '_wpnonce', false ) ) {
             wp_send_json(
                 array(
                     'message' => array(
-                        'type' => 'warning',
-                        'text' => __( 'Something went wrong. Please reload the page and try again.', 'html-forms' ),
+                        'type' => 'error',
+                        'text' => __( 'Your session has expired.', 'core-forms' ),
                     ),
-                    'error' => 'error',
                 ),
-            200 );
+                403
+            );
         }
 
-		$data       = $this->get_request_data();
-		$form_id    = (int) $data['_hf_form_id'];
         try {
-            $form = hf_get_form( $form_id );
+            $form = cf_get_form( (int) $_POST['_cf_form_id'] );
         } catch ( \Exception $e ) {
- 			return;
- 		}
-		$error_code = $this->validate_form( $form, $data );
-        $submission = null;
+            return;
+        }
 
-		if ( empty( $error_code ) ) {
-			/**
-			 * Filters the field names that should be ignored on the Submission object.
-			 * Fields starting with an underscore (_) are ignored by default.
-			 *
-			 * @param array $names
-			 */
-			$ignored_field_names = apply_filters( 'hf_ignored_field_names', array() );
+        // unset ignored field names (those starting with underscore or in ignored array)
+        $ignored_field_names = apply_filters( 'cf_ignored_field_names', array() );
+        $data                = $_POST;
+        foreach ( $data as $key => $value ) {
+            if ( $key[0] === '_' || in_array( $key, $ignored_field_names, true ) ) {
+                unset( $data[ $key ] );
+            }
+        }
 
-			// filter out ignored field names
-			foreach ( $data as $key => $value ) {
-				if ( $key[0] === '_' || in_array( $key, $ignored_field_names ) ) {
-					unset( $data[ $key ] );
-					continue;
-				}
+        // process data: trim all values & strip slashes
+        $data = array_combine(
+            array_keys( $data ),
+            array_map(
+                function( $value ) {
+                    if ( is_array( $value ) ) {
+                        return array_map( 'trim', array_map( 'stripslashes', $value ) );
+                    }
+                    return trim( stripslashes( $value ) );
+                },
+                $data
+            )
+        );
+        $data = cf_template( $data );
 
-				// this detects the WPBruiser token field to ensure it isn't stored
-				// CAVEAT: this will detect any non-uppercase string with 2 dashes in the field name and no whitespace in the field value
-				if ( class_exists( 'GoodByeCaptcha' ) && is_string( $key ) && is_string( $value ) && strtoupper( $key ) !== $key && substr_count( $key, '-' ) >= 2 && substr_count( trim( $value ), ' ' ) === 0 ) {
-					unset( $data[ $key ] );
-					continue;
-				}
-			}
+        // detect referer & user agent from server variables
+        $referer_url = sanitize_text_field( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' );
+        $user_agent  = sanitize_text_field( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '' );
+        $ip_address  = sanitize_url( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' );
 
-			// sanitize data: strip tags etc.
-			$data = $this->sanitize( $data );
+        // build submission object
+        $submission               = new Submission();
+        $submission->form_id      = $form->ID;
+        $submission->data         = $data;
+        $submission->user_agent   = $user_agent;
+        $submission->ip_address   = $ip_address;
+        $submission->referer_url  = $referer_url;
+        $submission->submitted_at = gmdate( 'Y-m-d H:i:s' );
 
-			// save form submission
-			$submission               = new Submission();
-			$submission->form_id      = $form_id;
-			$submission->data         = $data;
-			$submission->ip_address   = ! empty( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : '';
-			$submission->user_agent   = ! empty( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : '';
-			$submission->referer_url  = ! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_url( $_SERVER['HTTP_REFERER'] ) : '';
-			$submission->submitted_at = gmdate( 'Y-m-d H:i:s' );
+        // validate: check for required fields
+        $error_code = $this->validate_form( $form, $data );
 
-			// save submission object so that other form processor have an insert ID to work with (eg file upload)
-			if ( $form->settings['save_submissions'] ) {
-				$submission->save();
-			}
+        do_action( 'cf_process_form', $form, $submission, $data, $error_code );
 
-			/**
-			 * General purpose hook that runs before all form actions, so we can still modify the submission object that is passed to actions.
-			 */
-			do_action( 'hf_process_form', $form, $submission );
+        if ( $error_code === '' ) {
 
-			// re-save submission object for convenience in form processors hooked into hf_process_form
-			if ( $form->settings['save_submissions'] ) {
-				$submission->save();
-			}
+            // save submission
+            if ( $form->settings['save_submissions'] ) {
+                global $wpdb;
 
-			// process form actions
-			if ( isset( $form->settings['actions'] ) ) {
-				foreach ( $form->settings['actions'] as $action_settings ) {
-					/**
-					 * Processes the specified form action and passes related data.
-					 *
-					 * @param array $action_settings
-					 * @param Submission $submission
-					 * @param Form $form
-					 */
-					do_action( 'hf_process_form_action_' . $action_settings['type'], $action_settings, $submission, $form );
-				}
-			}
+                $wpdb->insert(
+                    $wpdb->prefix . 'cf_submissions',
+                    array(
+                        'form_id'      => $submission->form_id,
+                        'data'         => json_encode( $submission->data ),
+                        'ip_address'   => $submission->ip_address,
+                        'user_agent'   => $submission->user_agent,
+                        'referer_url'  => $submission->referer_url,
+                        'submitted_at' => $submission->submitted_at,
+                    )
+                );
+                $submission->id = $wpdb->insert_id;
 
-			/**
-			 * General purpose hook after all form actions have been processed for this specific form. The dynamic portion of the hook refers to the form slug.
-			 *
-			 * @param Submission $submission
-			 * @param Form $form
-			 */
-			do_action( "hf_form_{$form->slug}_success", $submission, $form );
+                do_action( 'cf_submission_inserted', $submission, $form );
+            }
 
-			/**
-			 * General purpose hook after all form actions have been processed.
-			 *
-			 * @param Submission $submission
-			 * @param Form $form
-			 */
-			do_action( 'hf_form_success', $submission, $form );
-		} else {
-			/**
-			 * General purpose hook for when a form error occurred
-			 *
-			 * @param string $error_code
-			 * @param Form $form
-			 * @param array $data
-			 */
-			do_action( 'hf_form_error', $error_code, $form, $data );
-		}
+            do_action( 'cf_form_success', $submission, $form );
 
-		// Delay response until "wp_loaded" hook to give other plugins a chance to process stuff.
+            // run actions
+            if ( ! empty( $form->settings['actions'] ) ) {
+                foreach ( $form->settings['actions'] as $action_settings ) {
+                    do_action( sprintf( 'cf_process_form_action_%s', $action_settings['type'] ), $action_settings, $submission, $form );
+                }
+            }
+        }
+
+        // signal to others that form was processed, even when there was an error
+        do_action( 'cf_form_response', $form, $submission, $error_code );
+
         $response = $this->get_response_for_error_code( $error_code, $form, $data, $submission );
-        wp_send_json( $response, 200 );
-	}
+        wp_send_json( $response );
+    }
 
-	public function listen_for_preview() {
-		if ( empty( $_GET['hf_preview_form'] ) || ! current_user_can( 'edit_forms' ) ) {
-			return;
-		}
+    public function listen_for_preview() {
+        if ( empty( $_GET['cf_preview_form'] ) || ! current_user_can( 'edit_forms' ) ) {
+            return;
+        }
 
-		try {
-			$form = hf_get_form( $_GET['hf_preview_form'] );
-		} catch ( \Exception $e ) {
-			return;
-		}
+        try {
+            $form = cf_get_form( (int) $_GET['cf_preview_form'] );
+        } catch ( \Exception $e ) {
+            return;
+        }
 
-		show_admin_bar( false );
-		add_filter( 'pre_handle_404', '__return_true' );
-		remove_all_actions( 'template_redirect' );
-		add_action(
-			'template_redirect',
-			function() use ( $form ) {
-				// clear output, some plugin or hooked code might have thrown errors by now.
-				if ( ob_get_level() > 0 ) {
-					ob_end_clean();
-				}
+        show_admin_bar( false );
+        add_filter( 'pre_handle_404', '__return_true' );
+        remove_all_actions( 'template_redirect' );
+        add_action(
+            'wp_head',
+            function () {
+                wp_enqueue_style( 'core-forms' );
+                echo '<style type="text/css">body{ background: #f1f1f1; margin-top: 40px; } .cf-form{ max-width: 600px; padding: 12px 24px 24px; margin: 0 auto; background: white; }</style>';
+            }
+        );
+        add_action(
+            'wp_body_open',
+            function () use ( $form ) {
+                status_header( 200 );
+                echo '<div class="cf-form-preview">';
+                echo $form->get_html();
+                echo '</div>';
+                exit;
+            }
+        );
+    }
 
-				status_header( 200 );
-				require dirname( $this->plugin_file ) . '/views/form-preview.php';
-				exit;
-			}
-		);
-	}
+    private function get_response_for_error_code( $error_code, Form $form, $data = array(), ?Submission $submission = null ) {
+        // return success response for empty error code string or spam (to trick bots)
+        if ( $error_code === '' || $error_code === 'spam' ) {
+            $response = array(
+                'message'   => array(
+                    'type' => 'success',
+                    'text' => $form->get_message( 'success' ),
+                ),
+                'hide_form' => (bool) $form->settings['hide_after_success'],
+            );
 
-	private function get_response_for_error_code( $error_code, Form $form, $data = array(), Submission $submission = null ) {
-		// return success response for empty error code string or spam (to trick bots)
-		if ( $error_code === '' || $error_code === 'spam' ) {
-			$response = array(
-				'message'   => array(
-					'type' => 'success',
-					'text' => $form->get_message( 'success' ),
-				),
-				'hide_form' => (bool) $form->settings['hide_after_success'],
-			);
+            // maybe add redirect_url to response
+            if ( ! empty( $form->settings['redirect_url'] ) ) {
+                $redirect_url = cf_replace_data_variables( $form->settings['redirect_url'], $submission );
+                $redirect_url = apply_filters( 'cf_form_redirect_url', $redirect_url, $form, $data );
+                if ( ! empty( $redirect_url ) ) {
+                    $response['redirect_url'] = $redirect_url;
+                }
+            }
 
-			if ( ! empty( $form->settings['redirect_url'] ) && $submission !== null ) {
-				$response['redirect_url'] = hf_replace_data_variables( $form->settings['redirect_url'], $submission, 'urlencode' );
-			}
+            return $response;
+        }
 
-			return apply_filters( 'hf_form_response', $response, $form, $data );
-		}
+        // error response
+        return array(
+            'message' => array(
+                'type' => 'error',
+                'text' => $form->get_message( $error_code ),
+            ),
+        );
+    }
 
-		// get error message
-		$message = $form->get_message( $error_code );
-		if ( empty( $message ) ) {
-			$message = $form->get_message( 'error' );
-		}
+    private function validate_form( Form $form, array $data ) {
+        // validate required fields
+        $required_fields = $form->get_required_fields();
+        foreach ( $required_fields as $field_name ) {
+            $field_name = trim( $field_name );
+            $value      = isset( $data[ $field_name ] ) ? $data[ $field_name ] : '';
 
-		// return error response
-		return array(
-			'message' => array(
-				'type' => 'warning',
-				'text' => $message,
-			),
-			'error'   => $error_code,
-		);
-	}
+            if ( empty( $value ) || ( is_array( $value ) && ! array_filter( $value ) ) ) {
+                $error_code = 'required_field_missing';
+                return $error_code;
+            }
+        }
 
-	public function shortcode( $attributes = array(), $content = '' ) {
-		if ( empty( $attributes['slug'] ) && empty( $attributes['id'] ) ) {
-			return '';
-		}
+        // validate email fields
+        $email_fields = $form->get_email_fields();
+        foreach ( $email_fields as $field_name ) {
+            $field_name = trim( $field_name );
+            $value      = isset( $data[ $field_name ] ) ? $data[ $field_name ] : '';
 
-		$slug_or_id = esc_attr( empty( $attributes['id'] ) ? $attributes['slug'] : $attributes['id'] );
-		try {
-			$form = hf_get_form( $slug_or_id );
-		} catch ( \Exception $e ) {
-			if ( ! current_user_can( 'manage_options' ) ) {
-				return $content;
-			}
+            // if value empty, no need to validate (means field was optional)
+            if ( ! empty( $value ) && ! is_email( $value ) ) {
+                $error_code = 'invalid_email';
+                return $error_code;
+            }
+        }
 
-			return sprintf( '<p><strong>%s</strong> %s</p>', __( 'Error:', 'html-forms' ), sprintf( __( 'No form found with slug %s', 'html-forms' ), esc_attr( $attributes['slug'] ) ) );
-		}
+        /**
+         * This filter allows you to perform your own form validation. The dynamic portion of the hook refers to the form slug.
+         *
+         * Return a non-empty string to indicate an error (this will be used as the form message key).
+         *
+         * @param string $error_code
+         * @param Form $form
+         * @param array $data
+         */
+        $error_code = apply_filters( 'cf_validate_form', '', $form, $data );
+        return $error_code;
+    }
 
-		return $form . $content;
-	}
+    public function get_preview_url( Form $form ) {
+        $preview_url = add_query_arg(
+            array(
+                'cf_preview_form' => $form->ID,
+            ),
+            site_url()
+        );
+        return $preview_url;
+    }
+
+    /**
+    *
+    * @param Form $form
+    * @return string
+    */
+    public function get_available_field_types() {
+        $types = array(
+            'text'           => array( 'text' => 'Text', 'type' => 'input', 'placeholder' => 'Your text here' ),
+            'email'          => array( 'text' => 'Email', 'type' => 'input', 'placeholder' => 'your@email.com' ),
+            'textarea'       => array( 'text' => 'Textarea', 'placeholder' => 'Your text here' ),
+            'tel'            => array( 'text' => 'Telephone', 'type' => 'input', 'placeholder' => '' ),
+            'number'         => array( 'text' => 'Number', 'type' => 'input', 'placeholder' => '' ),
+            'date'           => array( 'text' => 'Date', 'type' => 'input' ),
+            'checkbox'       => array( 'text' => 'Checkbox' ),
+            'dropdown'       => array( 'text' => 'Select' ),
+            'radio'          => array( 'text' => 'Radio', 'accepts_options' => true ),
+            'checkboxes'     => array( 'text' => 'Checkboxes', 'accepts_options' => true ),
+            'hidden'         => array( 'text' => 'Hidden', 'type' => 'input' ),
+            'submit'         => array( 'text' => 'Submit', 'type' => 'button' ),
+        );
+        $types = apply_filters( 'cf_available_field_types', $types );
+        return $types;
+    }
+
+    /**
+    * @param Form $form
+    * @return string
+    */
+    public function get_visible_field_names( Form $form ) {
+        $html         = $form->get_markup();
+        $hidden       = get_hidden_columns( get_current_screen() );
+        $field_names  = array();
+        $regex        = '/<(?:input|select|textarea|button)[^>]*name=[\'|"]([^\'|"]+)[\'|"][^>]*>/i';
+
+        preg_match_all( $regex, $html, $matches );
+
+        if ( ! empty( $matches[1] ) ) {
+            do_action( 'cf_output_table_data_columns', $form );
+
+            foreach ( $matches[1] as $field_name ) {
+                // strip [] from names
+                $field_name = str_replace( '[]', '', $field_name );
+
+                // skip hidden columns & duplicates
+                if ( in_array( $field_name, $hidden ) || in_array( $field_name, $field_names ) ) {
+                    continue;
+                }
+
+                $field_names[] = $field_name;
+            }
+        }
+        return $field_names;
+    }
 }

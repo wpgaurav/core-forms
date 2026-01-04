@@ -3,15 +3,15 @@ $available_actions = $this->get_available_form_actions();
 ?>
 
 <div>
-    <h2><?php echo __( 'Form Actions', 'html-forms' ); ?></h2>
+    <h2><?php echo __( 'Form Actions', 'core-forms' ); ?></h2>
 
     <?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-    <p class="hf-premium">
-        <?php echo sprintf( __('Notify other services whenever a form is submitted using the Webhooks form action in <a href="%s">HTML Forms Premium</a>', 'html-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=html-forms&amp;utm_campaign=actions-tab' ); ?>.
+    <p class="cf-premium">
+        <?php echo sprintf( __('Notify other services whenever a form is submitted using the Webhooks form action in <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=actions-tab' ); ?>.
     </p>
     <?php endif; ?>
 
-    <div id="hf-form-actions">
+    <div id="cf-form-actions">
         <?php
         if( ! empty( $form->settings['actions'] ) ) {
             $index = 0;
@@ -22,7 +22,7 @@ $available_actions = $this->get_available_form_actions();
                 }
 
                 ?>
-                   <div class="hf-action-settings" data-title="<?php echo esc_attr( $available_actions[ $action_settings['type'] ] ); ?>">
+                   <div class="cf-action-settings" data-title="<?php echo esc_attr( $available_actions[ $action_settings['type'] ] ); ?>">
                         <?php
 
                         /**
@@ -31,26 +31,26 @@ $available_actions = $this->get_available_form_actions();
                         * @param array $action_settings
                         * @param int $index
                         */
-                        do_action( 'hf_output_form_action_' . $action_settings['type'] . '_settings', $action_settings, $index++ ); 
+                        do_action( 'cf_output_form_action_' . $action_settings['type'] . '_settings', $action_settings, $index++ ); 
 
                         /**
-                        * Deprecated action hook. Use the above action (hf_output_form_action_...) instead.
+                        * Deprecated action hook. Use the above action (cf_output_form_action_...) instead.
                         */
-                        do_action( 'hf_render_form_action_' . $action_settings['type'] . '_settings', $action_settings, $index++ ); ?>
+                        do_action( 'cf_render_form_action_' . $action_settings['type'] . '_settings', $action_settings, $index++ ); ?>
                    </div>
                 <?php
             }
         }
 
-        echo '<p id="hf-form-actions-empty">' . __( 'No form actions configured for this form.', 'html-forms' ) . '</p>';
+        echo '<p id="cf-form-actions-empty">' . __( 'No form actions configured for this form.', 'core-forms' ) . '</p>';
         ?>
     </div>
 </div>
 
-<div class="hf-medium-margin">
-    <h3><?php echo __( 'Add Form Action', 'html-forms' ); ?></h3>
-    <p><?php _e( 'Use the below button(s) to configure and perform an action whenever this form is successfully submitted.', 'html-forms' ); ?></p>
-    <p id="hf-available-form-actions">
+<div class="cf-medium-margin">
+    <h3><?php echo __( 'Add Form Action', 'core-forms' ); ?></h3>
+    <p><?php _e( 'Use the below button(s) to configure and perform an action whenever this form is successfully submitted.', 'core-forms' ); ?></p>
+    <p id="cf-available-form-actions">
         <?php
         foreach( $available_actions as $type => $label ) {
             echo sprintf( '<input type="button" value="%s" data-action-type="%s" class="button" />', esc_html( $label ), esc_attr( $type ) ) . ' &nbsp;';
@@ -63,11 +63,11 @@ $available_actions = $this->get_available_form_actions();
     <?php submit_button(); ?>
 </div>
 
-<div style="display: none;" id="hf-form-action-templates">
+<div style="display: none;" id="cf-form-action-templates">
     <?php
     foreach( $available_actions as $type => $label ) {
-        echo sprintf( '<script type="text/x-template" id="hf-action-type-%s-template">', $type );
-        do_action( 'hf_output_form_action_' . $type . '_settings', array(), '$index' );
+        echo sprintf( '<script type="text/x-template" id="cf-action-type-%s-template">', $type );
+        do_action( 'cf_output_form_action_' . $type . '_settings', array(), '$index' );
         echo '</script>';
     }
     ?>

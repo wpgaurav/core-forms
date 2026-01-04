@@ -1,14 +1,14 @@
 <?php
 
-namespace HTML_Forms\Data_Management;
+namespace Core_Forms\Data_Management;
 
 class Admin
 {
     public function hook()
     {
-        add_action('hf_admin_form_submissions_table_output_column_header', array( $this, 'output_column_heading_menu' ));
-        add_action('hf_admin_action_delete_data_column', array( $this, 'process_delete_data_column' ));
-        add_action('hf_admin_action_rename_data_column', array( $this, 'process_rename_data_column' ));
+        add_action('cf_admin_form_submissions_table_output_column_header', array( $this, 'output_column_heading_menu' ));
+        add_action('cf_admin_action_delete_data_column', array( $this, 'process_delete_data_column' ));
+        add_action('cf_admin_action_rename_data_column', array( $this, 'process_rename_data_column' ));
     }
 
     public function output_column_heading_menu($key)
@@ -17,10 +17,10 @@ class Admin
         <div class="hf-column-menu">
             <div class="submenu-toggle"></div>
             <div class="submenu">
-                <a class="#" href="<?php echo esc_attr(add_query_arg(array('_hf_admin_action' => 'rename_data_column', '_wpnonce' => wp_create_nonce('_hf_admin_action'), 'column_key' => $key ))); ?>" onclick="var newKey = prompt('New column name', '<?php echo esc_attr($key); ?>'); if(newKey) { this.href = this.href + '&new_column_key=' + newKey; }">
+                <a class="#" href="<?php echo esc_attr(add_query_arg(array('_cf_admin_action' => 'rename_data_column', '_wpnonce' => wp_create_nonce('_cf_admin_action'), 'column_key' => $key ))); ?>" onclick="var newKey = prompt('New column name', '<?php echo esc_attr($key); ?>'); if(newKey) { this.href = this.href + '&new_column_key=' + newKey; }">
                     <?php echo __('Rename Column', 'html-forms-data-management'); ?>
                 </a>
-                <a class="hf-danger" href="<?php echo esc_attr(add_query_arg(array( '_hf_admin_action' => 'delete_data_column', '_wpnonce' => wp_create_nonce('_hf_admin_action'), 'column_key' => $key ))); ?>" data-hf-confirm="<?php esc_attr_e('Are you sure you want to delete this column? All data will be lost.', 'html-forms'); ?>">
+                <a class="hf-danger" href="<?php echo esc_attr(add_query_arg(array( '_cf_admin_action' => 'delete_data_column', '_wpnonce' => wp_create_nonce('_cf_admin_action'), 'column_key' => $key ))); ?>" data-hf-confirm="<?php esc_attr_e('Are you sure you want to delete this column? All data will be lost.', 'core-forms'); ?>">
                     <?php echo __('Delete Column', 'html-forms-data-management'); ?>
                 </a>
             </div>
@@ -33,7 +33,7 @@ class Admin
         global $wpdb;
         $form_id = (int) $_GET['form_id'];
         $column_key = (string) $_GET['column_key'];
-        $table = $wpdb->prefix . 'hf_submissions';
+        $table = $wpdb->prefix . 'cf_submissions';
 
         $offset = 0;
         $limit = 500;
@@ -74,7 +74,7 @@ class Admin
         $form_id = (int) $_GET['form_id'];
         $column_key = (string) $_GET['column_key'];
         $new_column_key = (string) $_GET['new_column_key'];
-        $table = $wpdb->prefix . 'hf_submissions';
+        $table = $wpdb->prefix . 'cf_submissions';
 
         $offset = 0;
         $limit = 500;

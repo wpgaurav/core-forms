@@ -1,14 +1,17 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
 
-use HTML_Forms\Form;
+use Core_Forms\Form;
 use WP_List_Table, WP_Post;
 
-// Check if WP Core class exists so that we can keep testing rest of HTML Forms in isolation..
+// Create backward compatible alias for old namespace
+// Note: This must be done after class definition due to conditional class definition
+
+// Check if WP Core class exists so that we can keep testing rest of Core Forms in isolation..
 if ( class_exists( 'WP_List_Table' ) ) {
 
-	class Table extends WP_List_Table {
+    class Table extends WP_List_Table {
 
 		/**
 		 * @var bool
@@ -67,8 +70,8 @@ if ( class_exists( 'WP_List_Table' ) ) {
 			$count_any = $counts->publish + $counts->draft + $counts->future + $counts->pending;
 
 			return array(
-				''      => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( remove_query_arg( 'post_status' ) ), $current == '' ? 'current' : '', __( 'All', 'html-forms' ), $count_any ),
-				'trash' => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( add_query_arg( array( 'post_status' => 'trash' ) ) ), $current == 'trash' ? 'current' : '', __( 'Trash', 'html-forms' ), $counts->trash ),
+				''      => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( remove_query_arg( 'post_status' ) ), $current == '' ? 'current' : '', __( 'All', 'core-forms' ), $count_any ),
+				'trash' => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( add_query_arg( array( 'post_status' => 'trash' ) ) ), $current == 'trash' ? 'current' : '', __( 'Trash', 'core-forms' ), $counts->trash ),
 			);
 		}
 
@@ -80,14 +83,14 @@ if ( class_exists( 'WP_List_Table' ) ) {
 			$actions = array();
 
 			if ( $this->is_trash ) {
-				$actions['untrash'] = __( 'Restore', 'html-forms' );
-				$actions['delete']  = __( 'Delete Permanently', 'html-forms' );
+				$actions['untrash'] = __( 'Restore', 'core-forms' );
+				$actions['delete']  = __( 'Delete Permanently', 'core-forms' );
 
 				return $actions;
 			}
 
-			$actions['trash']     = __( 'Delete Permanently', 'html-forms' );
-			$actions['duplicate'] = __( 'Duplicate', 'html-forms' );
+			$actions['trash']     = __( 'Delete Permanently', 'core-forms' );
+			$actions['duplicate'] = __( 'Duplicate', 'core-forms' );
 
 			return $actions;
 		}
@@ -100,7 +103,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		 * @return array
 		 */
 		public function get_table_classes() {
-			return array( 'widefat', 'fixed', 'striped', 'html-forms-table' );
+			return array( 'widefat', 'fixed', 'striped', 'core-forms-table' );
 		}
 
 		/**
@@ -109,9 +112,9 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		public function get_columns() {
 			return array(
 				'cb'        => '<input type="checkbox" />',
-				'form_name' => __( 'Form', 'html-forms' ),
-				'shortcode' => __( 'Shortcode', 'html-forms' ),
-				'submissions' => __( 'Submissions', 'html-forms' ),
+				'form_name' => __( 'Form', 'core-forms' ),
+				'shortcode' => __( 'Shortcode', 'core-forms' ),
+				'submissions' => __( 'Submissions', 'core-forms' ),
 			);
 		}
 
@@ -153,7 +156,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 				$args['orderby'] = $_GET['orderby'];
 			}
 
-			return hf_get_forms( $args );
+			return cf_get_forms( $args );
 		}
 
 		/**
@@ -184,11 +187,11 @@ if ( class_exists( 'WP_List_Table' ) ) {
 				return sprintf( '<strong>%s</strong>', esc_html( $form->title ) );
 			}
 
-			$edit_link = admin_url( 'admin.php?page=html-forms&view=edit&form_id=' . $form->ID );
+			$edit_link = admin_url( 'admin.php?page=core-forms&view=edit&form_id=' . $form->ID );
 			$title     = '<strong><a class="row-title" href="' . $edit_link . '">' . esc_html( $form->title ) . '</a></strong>';
 
 			$actions = array();
-			$tabs    = hf_get_admin_tabs( $form );
+			$tabs    = cf_get_admin_tabs( $form );
 
 			foreach ( $tabs as $tab_slug => $tab_title ) {
 				$actions[ $tab_slug ] = '<a href="' . esc_attr( add_query_arg( array( 'tab' => $tab_slug ), $edit_link ) ) . '">' . $tab_title . '</a>';
@@ -207,7 +210,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 				return '';
 			}
 
-			return sprintf( '<input type="text" onfocus="this.select();" readonly="readonly" value="%s">', esc_attr( '[hf_form slug="' . $form->slug . '"]' ) );
+			return sprintf( '<input type="text" onfocus="this.select();" readonly="readonly" value="%s">', esc_attr( '[cf_form slug="' . $form->slug . '"]' ) );
 		}
 
         /**
@@ -216,8 +219,8 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		 * @return string
 		 */
 		public function column_submissions( Form $form ) {
-			$edit_link = admin_url( 'admin.php?page=html-forms&view=edit&form_id=' . $form->ID );
-            $submissions = hf_count_form_submissions( $form->id );
+			$edit_link = admin_url( 'admin.php?page=core-forms&view=edit&form_id=' . $form->ID );
+            $submissions = cf_count_form_submissions( $form->id );
 
             if ($submissions == 0 || $this->is_trash) {
                 return $submissions;
@@ -230,7 +233,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		 * The text that is shown when there are no items to show
 		 */
 		public function no_items() {
-			echo sprintf( __( 'No forms found. <a href="%s">Would you like to create one now</a>?', 'html-forms' ), admin_url( 'admin.php?page=html-forms-add-form' ) );
+			echo sprintf( __( 'No forms found. <a href="%s">Would you like to create one now</a>?', 'core-forms' ), admin_url( 'admin.php?page=core-forms-add-form' ) );
 		}
 
 		/**

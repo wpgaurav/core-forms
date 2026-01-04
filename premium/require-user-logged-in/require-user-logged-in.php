@@ -1,9 +1,14 @@
 <?php
 
-namespace HTML_Forms\Required_User_Logged_In;
+namespace Core_Forms\Required_User_Logged_In;
 
-add_filter('hf_form_default_messages', function ($msgs) {
-    $msgs['require_user_logged_in'] = __('You must be logged in before you can use this form.', 'html-forms-premium');
+// Support both cf_ and cf_ prefixed filters
+add_filter('cf_form_default_messages', function ($msgs) {
+    $msgs['require_user_logged_in'] = __('You must be logged in before you can use this form.', 'core-forms');
+    return $msgs;
+});
+add_filter('cf_form_default_messages', function ($msgs) {
+    $msgs['require_user_logged_in'] = __('You must be logged in before you can use this form.', 'core-forms');
     return $msgs;
 });
 

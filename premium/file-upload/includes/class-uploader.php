@@ -1,19 +1,19 @@
 <?php
 
-namespace HTML_Forms\File_Upload;
+namespace Core_Forms\File_Upload;
 
 class Uploader
 {
     public function hook()
     {
-        add_filter('hf_process_form', array( $this, 'process' ), 10, 2);
-        add_filter('hf_validate_form', array( $this, 'validate' ), 10, 3);
+        add_filter('cf_process_form', array( $this, 'process' ), 10, 2);
+        add_filter('cf_validate_form', array( $this, 'validate' ), 10, 3);
     }
 
     public function validate($error_code, $form, $data)
     {
         foreach ($data as $field_name => $field_data) {
-            if (! hf_is_file($field_data)) {
+            if (! cf_is_file($field_data)) {
                 continue;
             }
 
@@ -31,7 +31,7 @@ class Uploader
             }
 
             // validate file size (<8 MB)
-            if ($file->size > apply_filters('hf_upload_max_filesize', 8000000)) {
+            if ($file->size > apply_filters('cf_upload_max_filesize', 8000000)) {
                 return 'file_too_large';
             }
         }
@@ -42,7 +42,7 @@ class Uploader
     public function process($form, $submission)
     {
         foreach ($submission->data as $field_name => $field_data) {
-            if (! hf_is_file($field_data)) {
+            if (! cf_is_file($field_data)) {
                 continue;
             }
 
@@ -53,10 +53,10 @@ class Uploader
             }
 
             $wp_upload_dir = wp_upload_dir();
-            $hf_upload_dir = sprintf("%s/%s/%s", $wp_upload_dir['basedir'], 'html-forms', $form->slug);
-            $hf_upload_url = sprintf("%s/%s/%s", $wp_upload_dir['baseurl'], 'html-forms', $form->slug);
-            if (! is_dir($hf_upload_dir)) {
-                mkdir($hf_upload_dir, 0755, true);
+            $cf_upload_dir = sprintf("%s/%s/%s", $wp_upload_dir['basedir'], 'core-forms', $form->slug);
+            $cf_upload_url = sprintf("%s/%s/%s", $wp_upload_dir['baseurl'], 'core-forms', $form->slug);
+            if (! is_dir($cf_upload_dir)) {
+                mkdir($cf_upload_dir, 0755, true);
             }
 
             // move uploaded file to subdirectory in wp-uploads
@@ -72,15 +72,15 @@ class Uploader
             $id = ! empty($submission->id) ? $submission->id : gmdate('YmdHis');
 
             $new_filename = sprintf('%s_%s_%s.%s', $id, $field_name, uniqid(), $file_ext);
-            $destination = sprintf("%s/%s", $hf_upload_dir, $new_filename);
+            $destination = sprintf("%s/%s", $cf_upload_dir, $new_filename);
             move_uploaded_file($field_data['tmp_name'], $destination);
-            $submission->data[$field_name]['dir'] = $hf_upload_dir;
+            $submission->data[$field_name]['dir'] = $cf_upload_dir;
             $submission->data[$field_name]['name'] = $new_filename;
-            $submission->data[$field_name]['url'] = $hf_upload_url . '/' . $new_filename;
+            $submission->data[$field_name]['url'] = $cf_upload_url . '/' . $new_filename;
             unset($submission->data[$field_name]['tmp_name']);
 
             // Create attachment so file appears in Media
-            $add_to_media = apply_filters('hf_upload_add_to_media', true);
+            $add_to_media = apply_filters('cf_upload_add_to_media', true);
             if ($add_to_media) {
                 $wp_filetype = wp_check_filetype($destination, null);
                 $attachment = array(

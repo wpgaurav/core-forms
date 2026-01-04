@@ -1,28 +1,28 @@
 <?php
 
-namespace HTML_Forms\Notifications;
+namespace Core_Forms\Notifications;
 
-use HTML_Forms\Form;
+use Core_Forms\Form;
 
 class Admin
 {
     public function hook()
     {
         add_action('admin_footer', array($this, 'add_badges'));
-        add_action('hf_admin_form_submissions_bulk_actions', array($this, 'add_bulk_actions'));
-        add_action('hf_admin_action_bulk_mark_submissions_as_seen', array($this, 'mark_submissions_as_seen'));
-        add_action('hf_admin_action_bulk_mark_submissions_as_unseen', array($this, 'mark_submissions_as_unseen'));
-        add_action('hf_admin_action_toggle_submission_status', array($this, 'toggle_submission_status'));
-        add_action('hf_admin_form_submissions_table_output_row_actions', array($this, 'row_actions'));
-        add_action('hf_output_form_settings', array($this, 'form_settings'));
-        add_action('hf_admin_action_bulk_delete_submissions', array($this, 'mark_submissions_as_seen'));
+        add_action('cf_admin_form_submissions_bulk_actions', array($this, 'add_bulk_actions'));
+        add_action('cf_admin_action_bulk_mark_submissions_as_seen', array($this, 'mark_submissions_as_seen'));
+        add_action('cf_admin_action_bulk_mark_submissions_as_unseen', array($this, 'mark_submissions_as_unseen'));
+        add_action('cf_admin_action_toggle_submission_status', array($this, 'toggle_submission_status'));
+        add_action('cf_admin_form_submissions_table_output_row_actions', array($this, 'row_actions'));
+        add_action('cf_output_form_settings', array($this, 'form_settings'));
+        add_action('cf_admin_action_bulk_delete_submissions', array($this, 'mark_submissions_as_seen'));
     }
 
     public function form_settings(Form $form)
     {
         ?>
         <tr valign="top">
-            <th scope="row"><?php _e('Enable Submission Notifications?', 'html-forms'); ?></th>
+            <th scope="row"><?php _e('Enable Submission Notifications?', 'core-forms'); ?></th>
             <td class="nowrap">
                 <label>
                     <input type="radio" name="form[settings][enable_notifications]"
@@ -35,7 +35,7 @@ class Admin
                     <?php _e('No'); ?>
                 </label>
                 <p class="description">
-                    <?php _e('Select "Yes" to see a notification badge for new form submissions.', 'html-forms'); ?>
+                    <?php _e('Select "Yes" to see a notification badge for new form submissions.', 'core-forms'); ?>
                 </p>
             </td>
         </tr>
@@ -44,8 +44,8 @@ class Admin
 
     public function add_bulk_actions($actions)
     {
-        $actions['bulk_mark_submissions_as_seen'] = __('Mark as seen', 'html-forms');
-        $actions['bulk_mark_submissions_as_unseen'] = __('Mark as unseen', 'html-forms');
+        $actions['bulk_mark_submissions_as_seen'] = __('Mark as seen', 'core-forms');
+        $actions['bulk_mark_submissions_as_unseen'] = __('Mark as unseen', 'core-forms');
         return $actions;
     }
 
@@ -100,8 +100,8 @@ class Admin
     public function row_actions($submission)
     {
         $url = add_query_arg(array(
-            '_hf_admin_action' => 'toggle_submission_status',
-            '_wpnonce' => wp_create_nonce('_hf_admin_action'),
+            '_cf_admin_action' => 'toggle_submission_status',
+            '_wpnonce' => wp_create_nonce('_cf_admin_action'),
             'submission_id' => $submission->id,
         ));
         $form_id = absint($_GET['form_id']);
@@ -154,7 +154,7 @@ class Admin
                     menuEl.innerHTML = menuEl.innerHTML + ' <span class="update-plugins count-1"><span class="plugin-count"><?php echo $count; ?></span></span>';
                 }
 
-                <?php if( !empty($_GET['page']) && $_GET['page'] === 'html-forms' ) { ?>
+                <?php if( !empty($_GET['page']) && $_GET['page'] === 'core-forms' ) { ?>
                 for (var form_id in notifications) {
                     if (!notifications.hasOwnProperty(form_id)) {
                         continue;

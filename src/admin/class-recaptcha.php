@@ -1,6 +1,9 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
+
+// Create backward compatible alias for old namespace
+
 
 class Recaptcha {
     private $settings;
@@ -8,7 +11,7 @@ class Recaptcha {
     
     public function __construct() {
         if ( function_exists( 'get_option' ) ) {
-            $this->settings = hf_get_settings();
+            $this->settings = cf_get_settings();
         } else {
             $this->settings = array(
                 'google_recaptcha' => array(
@@ -21,14 +24,14 @@ class Recaptcha {
     
     public function hook() {
         if ( is_admin() ) {
-            add_action( 'hf_admin_output_form_messages', array( $this, 'output_recaptcha_message_fields' ) );
+            add_action( 'cf_admin_output_form_messages', array( $this, 'output_recaptcha_message_fields' ) );
         }
         
         if ( $this->is_configured() ) {
-            add_filter( 'hf_ignored_field_names', array( $this, 'ignored_fields' ) );
-            add_filter( 'hf_validate_form', array( $this, 'validate_recaptcha' ), 10, 3 );
-            add_filter( 'hf_form_markup', array( $this, 'add_recaptcha_to_form' ), 10, 2 );
-            add_filter( 'hf_form_html', array( $this, 'enqueue_recaptcha_on_form_render' ), 10, 2 );
+            add_filter( 'cf_ignored_field_names', array( $this, 'ignored_fields' ) );
+            add_filter( 'cf_validate_form', array( $this, 'validate_recaptcha' ), 10, 3 );
+            add_filter( 'cf_form_markup', array( $this, 'add_recaptcha_to_form' ), 10, 2 );
+            add_filter( 'cf_form_html', array( $this, 'enqueue_recaptcha_on_form_render' ), 10, 2 );
             
             add_action( 'admin_notices', array( $this, 'show_admin_notice' ) );
         }
@@ -101,14 +104,14 @@ class Recaptcha {
         
         // Enqueue reCAPTCHA integration script
         wp_enqueue_script(
-            'html-forms-recaptcha',
+            'core-forms-recaptcha',
             plugins_url( 'assets/js/recaptcha.js', $this->get_plugin_file() ),
-            array( 'google-recaptcha-v3', 'html-forms' ),
-            HTML_FORMS_VERSION,
+            array( 'google-recaptcha-v3', 'core-forms' ),
+            CORE_FORMS_VERSION,
             true
         );
         
-        wp_localize_script( 'html-forms-recaptcha', 'hf_recaptcha', array(
+        wp_localize_script( 'core-forms-recaptcha', 'cf_recaptcha', array(
             'site_key' => $site_key,
         ) );
     }
@@ -119,7 +122,7 @@ class Recaptcha {
      * @return string
      */
     private function get_plugin_file() {
-        return dirname( dirname( __DIR__ ) ) . '/html-forms.php';
+        return dirname( dirname( __DIR__ ) ) . '/core-forms.php';
     }
     
     /**
@@ -189,7 +192,7 @@ class Recaptcha {
         }
         
         // Check score
-        $min_score = apply_filters( 'hf_recaptcha_min_score', 0.5 );
+        $min_score = apply_filters( 'cf_recaptcha_min_score', 0.5 );
         
         if ( isset( $verification_result['score'] ) && $verification_result['score'] < $min_score ) {
             $this->log_debug( sprintf( 'reCAPTCHA score %.2f below minimum %.2f', $verification_result['score'], $min_score ), $form );
@@ -263,22 +266,22 @@ class Recaptcha {
         }
         ?>
         <tr valign="top">
-            <th scope="row" colspan="2" class="hf-settings-header"><?php echo __( 'Google reCAPTCHA v3', 'html-forms' ); ?></th>
+            <th scope="row" colspan="2" class="hf-settings-header"><?php echo __( 'Google reCAPTCHA v3', 'core-forms' ); ?></th>
         </tr>
         
         <tr valign="top">
-            <th scope="row"><label for="hf_form_recaptcha_failed"><?php _e( 'reCAPTCHA Failed', 'html-forms' ); ?></label></th>
+            <th scope="row"><label for="cf_form_recaptcha_failed"><?php _e( 'reCAPTCHA Failed', 'core-forms' ); ?></label></th>
             <td>
-                <input type="text" class="widefat" id="hf_form_recaptcha_failed" name="form[messages][recaptcha_failed]" value="<?php echo esc_attr( $form->messages['recaptcha_failed'] ); ?>" required />
-                <p class="description"><?php _e( 'The text that shows when reCAPTCHA verification fails.', 'html-forms' ); ?></p>
+                <input type="text" class="widefat" id="cf_form_recaptcha_failed" name="form[messages][recaptcha_failed]" value="<?php echo esc_attr( $form->messages['recaptcha_failed'] ); ?>" required />
+                <p class="description"><?php _e( 'The text that shows when reCAPTCHA verification fails.', 'core-forms' ); ?></p>
             </td>
         </tr>
         
         <tr valign="top">
-            <th scope="row"><label for="hf_form_recaptcha_low_score"><?php _e( 'reCAPTCHA Low Score', 'html-forms' ); ?></label></th>
+            <th scope="row"><label for="cf_form_recaptcha_low_score"><?php _e( 'reCAPTCHA Low Score', 'core-forms' ); ?></label></th>
             <td>
-                <input type="text" class="widefat" id="hf_form_recaptcha_low_score" name="form[messages][recaptcha_low_score]" value="<?php echo esc_attr( $form->messages['recaptcha_low_score'] ); ?>" required />
-                <p class="description"><?php _e( 'The text that shows when a submission appears to be spam based on reCAPTCHA score.', 'html-forms' ); ?></p>
+                <input type="text" class="widefat" id="cf_form_recaptcha_low_score" name="form[messages][recaptcha_low_score]" value="<?php echo esc_attr( $form->messages['recaptcha_low_score'] ); ?>" required />
+                <p class="description"><?php _e( 'The text that shows when a submission appears to be spam based on reCAPTCHA score.', 'core-forms' ); ?></p>
             </td>
         </tr>
         <?php
@@ -289,14 +292,14 @@ class Recaptcha {
      */
     public function show_admin_notice() {
         // Only show on HTML Forms pages, not every admin page
-        if ( empty( $_GET['page'] ) || $_GET['page'] !== 'html-forms' || empty( $_GET['form_id'] ) ) {
+        if ( empty( $_GET['page'] ) || $_GET['page'] !== 'core-forms' || empty( $_GET['form_id'] ) ) {
             return;
         }
         
         echo '<div class="notice notice-success" data-notice="hf-recaptcha">';
-        echo '<p><span class="dashicons dashicons-shield" style="color:#46b450;"></span> <strong>' . __( 'Google reCAPTCHA v3 is enabled on this form.', 'html-forms' ) . '</strong> ';
-        echo __( 'Submissions will be automatically protected from spam and abuse.', 'html-forms' );
-        echo ' <a href="' . admin_url( 'admin.php?page=html-forms-settings' ) . '">' . __( 'View settings', 'html-forms' ) . '</a>.</p>';
+        echo '<p><span class="dashicons dashicons-shield" style="color:#46b450;"></span> <strong>' . __( 'Google reCAPTCHA v3 is enabled on this form.', 'core-forms' ) . '</strong> ';
+        echo __( 'Submissions will be automatically protected from spam and abuse.', 'core-forms' );
+        echo ' <a href="' . admin_url( 'admin.php?page=core-forms-settings' ) . '">' . __( 'View settings', 'core-forms' ) . '</a>.</p>';
         echo '</div>';
     }
 }

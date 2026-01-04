@@ -1,15 +1,15 @@
 <?php
 
-namespace HTML_Forms\Data_Exporter;
+namespace Core_Forms\Data_Exporter;
 
-use HTML_Forms\Form;
+use Core_Forms\Form;
 
 class Admin
 {
     public function hook()
     {
-        add_action('hf_admin_action_export_form_submissions', array( $this, 'process_export' ));
-        add_action('hf_admin_output_form_tab_submissions', array( $this, 'tab_submissions' ), 5);
+        add_action('cf_admin_action_export_form_submissions', array( $this, 'process_export' ));
+        add_action('cf_admin_output_form_tab_submissions', array( $this, 'tab_submissions' ), 5);
     }
 
     /**
@@ -52,7 +52,7 @@ class Admin
         $limit = 500;
 
         while (true) {
-            $submissions = hf_get_form_submissions($form_id, array( 'offset' => $offset, 'limit' => $limit ));
+            $submissions = cf_get_form_submissions($form_id, array( 'offset' => $offset, 'limit' => $limit ));
 
             // stop when we processed all
             if (empty($submissions)) {
@@ -72,7 +72,7 @@ class Admin
                         $value = $submission->data[$key];
 
                         if ( is_array( $value ) ) {
-                            if ( hf_is_file( $value ) ) {
+                            if ( cf_is_file( $value ) ) {
                                 $file_url = isset( $value['url'] ) ? $value['url'] : '';
                                 $full_path = isset( $value['full_path'] ) ? $value['full_path'] : '';
                                 $value = $full_path . ' (' . $file_url . ')';
@@ -113,7 +113,7 @@ class Admin
         $limit = 500;
 
         while (true) {
-            $submissions = hf_get_form_submissions($form_id, array('offset' => $offset, 'limit' => $limit));
+            $submissions = cf_get_form_submissions($form_id, array('offset' => $offset, 'limit' => $limit));
 
             // stop when we processed all
             if (empty($submissions)) {

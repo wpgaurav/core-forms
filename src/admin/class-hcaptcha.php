@@ -1,11 +1,15 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
+
+// Create backward compatible alias for old namespace
+
 
 class Hcaptcha {
-	public function hook() {
-        add_filter( 'hf_ignored_field_names', array( $this, 'ignored_fields' ) ) ;
-	}
+    public function hook() {
+        add_filter( 'cf_ignored_field_names', array( $this, 'ignored_fields' ) );
+        add_filter( 'cf_ignored_field_names', array( $this, 'ignored_fields' ) ); // Legacy
+    }
 
     public function ignored_fields() {
         return array(
@@ -13,7 +17,7 @@ class Hcaptcha {
             'hcap_fst_token',
             'g-recaptcha-response',
             'h-captcha-response',
-            'html_forms_form_nonce',
+            'core_forms_form_nonce',
         );
     }
 }

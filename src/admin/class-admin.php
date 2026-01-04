@@ -1,9 +1,9 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
 
-use HTML_Forms\Form;
-use HTML_Forms\Submission;
+use Core_Forms\Form;
+use Core_Forms\Submission;
 
 class Admin {
 
@@ -28,24 +28,24 @@ class Admin {
 		add_action( 'admin_init', array( $this, 'listen' ) );
 		add_action( 'admin_print_styles', array( $this, 'assets' ) );
 		add_action( 'admin_head', array( $this, 'add_screen_options' ) );
-        add_action( 'hf_admin_action_create_form', array( $this, 'process_create_form' ) );
-		add_action( 'wp_ajax_hf_admin_action', array( $this, 'handle_admin_action' ) );
-		add_action( 'wp_ajax_hf_dismiss_recaptcha_notice', array( $this, 'dismiss_recaptcha_notice' ) );
-		add_action( 'hf_admin_action_save_form', array( $this, 'process_save_form' ) );
-		add_action( 'hf_admin_action_bulk_delete_submissions', array( $this, 'process_bulk_delete_submissions' ) );
+        add_action( 'cf_admin_action_create_form', array( $this, 'process_create_form' ) );
+		add_action( 'wp_ajax_cf_admin_action', array( $this, 'handle_admin_action' ) );
+		add_action( 'wp_ajax_cf_dismiss_recaptcha_notice', array( $this, 'dismiss_recaptcha_notice' ) );
+		add_action( 'cf_admin_action_save_form', array( $this, 'process_save_form' ) );
+		add_action( 'cf_admin_action_bulk_delete_submissions', array( $this, 'process_bulk_delete_submissions' ) );
 
-		add_action( 'hf_admin_output_form_tab_fields', array( $this, 'tab_fields' ) );
-		add_action( 'hf_admin_output_form_tab_messages', array( $this, 'tab_messages' ) );
-		add_action( 'hf_admin_output_form_tab_settings', array( $this, 'tab_settings' ) );
-		add_action( 'hf_admin_output_form_tab_actions', array( $this, 'tab_actions' ) );
-		add_action( 'hf_admin_output_form_tab_submissions', array( $this, 'tab_submissions_list' ) );
-		add_action( 'hf_admin_output_form_tab_submissions', array( $this, 'tab_submissions_detail' ) );
+		add_action( 'cf_admin_output_form_tab_fields', array( $this, 'tab_fields' ) );
+		add_action( 'cf_admin_output_form_tab_messages', array( $this, 'tab_messages' ) );
+		add_action( 'cf_admin_output_form_tab_settings', array( $this, 'tab_settings' ) );
+		add_action( 'cf_admin_output_form_tab_actions', array( $this, 'tab_actions' ) );
+		add_action( 'cf_admin_output_form_tab_submissions', array( $this, 'tab_submissions_list' ) );
+		add_action( 'cf_admin_output_form_tab_submissions', array( $this, 'tab_submissions_detail' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_assets' ) );
 	}
 
 	public function enqueue_gutenberg_assets() {
 		wp_enqueue_script(
-			'html-forms-block',
+			'core-forms-block',
 			plugins_url( 'assets/js/gutenberg-block.js', $this->plugin_file ),
 			array(
 				'wp-blocks',
@@ -55,7 +55,7 @@ class Admin {
 				'wp-block-editor',
 			)
 		);
-		$forms = hf_get_forms();
+		$forms = cf_get_forms();
 		$data  = array();
 		foreach ( $forms as $form ) {
 			$data[] = array(
@@ -64,17 +64,17 @@ class Admin {
 				'id'    => $form->ID,
 			);
 		}
-		wp_localize_script( 'html-forms-block', 'html_forms', $data );
+		wp_localize_script( 'core-forms-block', 'core_forms', $data );
 	}
 
 	public function register_settings() {
 		// register settings
-		register_setting( 'hf_settings', 'hf_settings', array( $this, 'sanitize_settings' ) );
+		register_setting( 'cf_settings', 'cf_settings', array( $this, 'sanitize_settings' ) );
 	}
 
 	public function run_migrations() {
-		$version_from = get_option( 'hf_version', '0.0' );
-		$version_to   = HTML_FORMS_VERSION;
+		$version_from = get_option( 'cf_version', '0.0' );
+		$version_to   = CORE_FORMS_VERSION;
 
 		if ( version_compare( $version_from, $version_to, '>=' ) ) {
 			return;
@@ -82,7 +82,7 @@ class Admin {
 
 		$migrations = new Migrations( $version_from, $version_to, dirname( $this->plugin_file ) . '/migrations' );
 		$migrations->run();
-		update_option( 'hf_version', HTML_FORMS_VERSION );
+		update_option( 'cf_version', CORE_FORMS_VERSION );
 	}
 
 	/**
@@ -99,16 +99,16 @@ class Admin {
 	}
 
 	public function listen() {
-		if ( isset( $_GET['_hf_admin_action'] ) ) {
-			$action = (string) $_GET['_hf_admin_action'];
-		} elseif ( isset( $_POST['_hf_admin_action'] ) ) {
-			$action = (string) $_POST['_hf_admin_action'];
+		if ( isset( $_GET['_cf_admin_action'] ) ) {
+			$action = (string) $_GET['_cf_admin_action'];
+		} elseif ( isset( $_POST['_cf_admin_action'] ) ) {
+			$action = (string) $_POST['_cf_admin_action'];
 		} else {
 			return;
 		}
 
 		// verify nonce
-		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], '_hf_admin_action' ) ) {
+		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], '_cf_admin_action' ) ) {
 			wp_nonce_ays( $action );
 			exit;
 		}
@@ -119,7 +119,7 @@ class Admin {
 		}
 
 		/**
-		 * Allows you to hook into requests containing `_hf_admin_action` => action name.
+		 * Allows you to hook into requests containing `_cf_admin_action` => action name.
 		 *
 		 * The dynamic portion of the hook name, `$action`, refers to the action name.
 		 *
@@ -128,26 +128,26 @@ class Admin {
 		 *
 		 * @since 3.0
 		 */
-		do_action( 'hf_admin_action_' . $action );
+		do_action( 'cf_admin_action_' . $action );
 
 		// redirect back to where we came from
-		$redirect_url = ! empty( $_REQUEST['_redirect_to'] ) ? $_REQUEST['_redirect_to'] : remove_query_arg( '_hf_admin_action' );
+		$redirect_url = ! empty( $_REQUEST['_redirect_to'] ) ? $_REQUEST['_redirect_to'] : remove_query_arg( '_cf_admin_action' );
 		wp_safe_redirect( $redirect_url );
 		exit;
 	}
 
 	public function assets() {
-		if ( empty( $_GET['page'] ) || strpos( $_GET['page'], 'html-forms' ) !== 0 ) {
+		if ( empty( $_GET['page'] ) || strpos( $_GET['page'], 'core-forms' ) !== 0 ) {
 			return;
 		}
 
-		$settings = hf_get_settings();
+		$settings = cf_get_settings();
 
-		wp_enqueue_style( 'html-forms-admin', plugins_url( 'assets/css/admin.css', $this->plugin_file ), array(), HTML_FORMS_VERSION );
-		wp_enqueue_script( 'html-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array(), HTML_FORMS_VERSION, true );
+		wp_enqueue_style( 'core-forms-admin', plugins_url( 'assets/css/admin.css', $this->plugin_file ), array(), CORE_FORMS_VERSION );
+		wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
 		wp_localize_script(
-			'html-forms-admin',
-			'hf_options',
+			'core-forms-admin',
+			'cf_options',
 			array(
 				'page'    => $_GET['page'],
 				'view'    => empty( $_GET['view'] ) ? '' : $_GET['view'],
@@ -159,13 +159,14 @@ class Admin {
 
 	public function menu() {
 		$capability = 'edit_forms';
+		// Core Forms icon - using a simple CF styled icon
 		$svg_icon   = '<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="256.000000pt" height="256.000000pt" viewBox="0 0 256.000000 256.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,256.000000) scale(0.100000,-0.100000)"
-			fill="#000000" stroke="none"><path d="M0 1280 l0 -1280 1280 0 1280 0 0 1280 0 1280 -1280 0 -1280 0 0 -1280z m2031 593 c8 -8 9 -34 4 -78 -6 -56 -9 -65 -23 -60 -43 16 -98 15 -132 -2 -50 -26 -72 -72 -78 -159 l-5 -74 92 0 91 0 0 -70 0 -70 -90 0 -90 0 0 -345 0 -345 -90 0 -90 0 0 345 0 345 -55 0 -55 0 0 70 0 70 55 0 55 0 0 38 c0 63 20 153 45 202 54 105 141 152 273 147 45 -2 87 -8 93 -14z m-1291 -288 l0 -235 230 0 230 0 0 235 0 235 90 0 90 0 0 -575 0 -575 -90 0 -90 0 0 260 0 260 -230 0 -230 0 0 -260 0 -260 -90 0 -90 0 0 575 0 575 90 0 90 0 0 -235z"/></g></svg>';
+			fill="#000000" stroke="none"><path d="M1120 2545 c-344 -56 -636 -238 -830 -515 -89 -128 -166 -305 -200 -460 -26 -119 -35 -337 -19 -460 35 -271 146 -516 330 -725 35 -40 142 -138 197 -180 189 -147 427 -237 677 -256 116 -9 296 6 405 34 91 23 240 81 330 128 80 42 220 136 220 148 0 4 -34 43 -75 86 l-76 79 -62 -46 c-84 -62 -230 -138 -332 -173 -96 -33 -212 -55 -330 -62 -133 -9 -272 14 -411 66 -304 116 -541 372 -639 689 -36 117 -50 240 -41 372 23 345 189 638 469 823 177 116 365 177 582 187 203 10 379 -30 556 -125 69 -38 199 -127 199 -137 0 -2 35 -38 78 -79 l77 -75 59 55 c32 30 70 66 85 80 l27 26 -82 74 c-115 105 -274 206 -419 264 -193 79 -466 112 -680 82z"/></g></svg>';
 		add_menu_page(
-			'HTML Forms',
-			'HTML Forms',
+			'Core Forms',
+			'Core Forms',
 			$capability,
-			'html-forms',
+			'core-forms',
 			array(
 				$this,
 				'page_overview',
@@ -174,71 +175,58 @@ class Admin {
 			'99.88491'
 		);
 		add_submenu_page(
-			'html-forms',
-			__( 'Forms', 'html-forms' ),
-			__( 'All Forms', 'html-forms' ),
+			'core-forms',
+			__( 'Forms', 'core-forms' ),
+			__( 'All Forms', 'core-forms' ),
 			$capability,
-			'html-forms',
+			'core-forms',
 			array(
 				$this,
 				'page_overview',
 			)
 		);
 		add_submenu_page(
-			'html-forms',
-			__( 'Add New Form', 'html-forms' ),
-			__( 'Add New', 'html-forms' ),
+			'core-forms',
+			__( 'Add New Form', 'core-forms' ),
+			__( 'Add New', 'core-forms' ),
 			$capability,
-			'html-forms-add-form',
+			'core-forms-add-form',
 			array(
 				$this,
 				'page_new_form',
 			)
 		);
 		add_submenu_page(
-			'html-forms',
-			__( 'Settings', 'html-forms' ),
-			__( 'Settings', 'html-forms' ),
+			'core-forms',
+			__( 'Settings', 'core-forms' ),
+			__( 'Settings', 'core-forms' ),
 			$capability,
-			'html-forms-settings',
+			'core-forms-settings',
 			array(
 				$this,
 				'page_settings',
 			)
 		);
-
-		if ( ! defined( 'HF_PREMIUM_VERSION' ) ) {
-			add_submenu_page(
-				'html-forms',
-				'Premium',
-				'<span style="color: #ea6ea6;">Premium</span>',
-				$capability,
-				'html-forms-premium',
-				array(
-					$this,
-					'page_premium',
-				)
-			);
-		}
+		// Premium features are now integrated - no need for upsell page
 	}
 
 	public function add_screen_options() {
 		// only run on the submissions overview page (not detail)
-		if ( empty( $_GET['page'] ) || $_GET['page'] !== 'html-forms' || empty( $_GET['view'] ) || $_GET['view'] !== 'edit' || empty( $_GET['form_id'] ) || ! empty( $_GET['submission_id'] ) ) {
+		if ( empty( $_GET['page'] ) || $_GET['page'] !== 'core-forms' || empty( $_GET['view'] ) || $_GET['view'] !== 'edit' || empty( $_GET['form_id'] ) || ! empty( $_GET['submission_id'] ) ) {
 			return;
 		}
 
 		// don't run if form does not have submissions enabled
-		$form = hf_get_form( $_GET['form_id'] );
+		$form = cf_get_form( $_GET['form_id'] );
 		if ( ! $form->settings['save_submissions'] ) {
 			return;
 		}
 
 		// tell screen options to show columns option
-		$submissions = hf_get_form_submissions( $_GET['form_id'] );
+		$submissions = cf_get_form_submissions( $_GET['form_id'] );
 		$columns     = $this->get_submission_columns( $submissions );
 		add_filter(
-			'manage_toplevel_page_html-forms_columns',
+			'manage_toplevel_page_core-forms_columns',
 			function ( $unused ) use ( $columns ) {
 				return $columns;
 			}
@@ -253,7 +241,7 @@ class Admin {
 			return;
 		}
 
-		$settings = hf_get_settings();
+		$settings = cf_get_settings();
 
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 		$table = new Table( $settings );
@@ -266,7 +254,7 @@ class Admin {
 	}
 
 	public function page_settings() {
-		$settings = hf_get_settings();
+		$settings = cf_get_settings();
         $wrapper_tags = array ( 'p', 'div', 'span' );
         
 		require dirname( $this->plugin_file ) . '/views/page-global-settings.php';
@@ -279,15 +267,15 @@ class Admin {
 	public function page_edit_form() {
 		$active_tab = ! empty( $_GET['tab'] ) ? $_GET['tab'] : 'fields';
 		$form_id    = (int) $_GET['form_id'];
-		$form       = hf_get_form( $form_id );
-		$settings   = hf_get_settings();
+		$form       = cf_get_form( $form_id );
+		$settings   = cf_get_settings();
 		require dirname( $this->plugin_file ) . '/views/page-edit-form.php';
 	}
 
 	public function tab_fields( Form $form ) {
 		$form_preview_url = add_query_arg(
 			array(
-				'hf_preview_form' => $form->ID,
+				'cf_preview_form' => $form->ID,
 			),
 			site_url( '/', 'admin' )
 		);
@@ -331,12 +319,12 @@ class Admin {
 		}
 
 		$items_per_page = 500;
-		$total_items    = hf_count_form_submissions( $form->ID );
+		$total_items    = cf_count_form_submissions( $form->ID );
 		$total_pages    = max( 1, ceil( $total_items / $items_per_page ) );
 		$current_page   = isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
 		$current_page   = max( 1, $current_page );
 		$current_page   = min( $total_pages, $current_page );
-		$submissions    = hf_get_form_submissions(
+		$submissions    = cf_get_form_submissions(
 			$form->ID,
 			array(
 				'limit'  => $items_per_page,
@@ -354,8 +342,8 @@ class Admin {
 			return;
 		}
 
-		$submission = hf_get_form_submission( (int) $_GET['submission_id'] );
-        do_action( 'hf_admin_form_submissions_detail', $submission );
+		$submission = cf_get_form_submission( (int) $_GET['submission_id'] );
+        do_action( 'cf_admin_form_submissions_detail', $submission );
 		require dirname( $this->plugin_file ) . '/views/tab-submissions-detail.php';
 	}
 
@@ -374,13 +362,13 @@ class Admin {
 			)
 		);
 
-		wp_safe_redirect( admin_url( 'admin.php?page=html-forms&view=edit&form_id=' . $form_id ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=core-forms&view=edit&form_id=' . $form_id ) );
 		exit;
 	}
 
 	public function process_save_form() {
 		$form_id = (int) $_POST['form_id'];
-		$form    = hf_get_form( $form_id );
+		$form    = cf_get_form( $form_id );
 		$data    = $_POST['form'];
 
 		// Fix for MultiSite stripping KSES for roles other than administrator
@@ -406,15 +394,15 @@ class Admin {
 		);
 
 		if ( ! empty( $data['settings'] ) ) {
-			update_post_meta( $form_id, '_hf_settings', $data['settings'] );
+			update_post_meta( $form_id, '_cf_settings', $data['settings'] );
 		}
 
 		// save form messages in individual meta keys
 		foreach ( $data['messages'] as $key => $message ) {
             if ( current_user_can( 'unfiltered_html' ) ) {
-                update_post_meta( $form_id, 'hf_message_' . $key, $message );
+                update_post_meta( $form_id, 'cf_message_' . $key, $message );
             } else {
-                update_post_meta( $form_id, 'hf_message_' . $key, wp_kses_post( $message ) );
+                update_post_meta( $form_id, 'cf_message_' . $key, wp_kses_post( $message ) );
             }
 		}
 
@@ -422,7 +410,7 @@ class Admin {
 			'form_id' => $form_id,
 			'saved'   => 1,
 		);
-		$redirect_url      = add_query_arg( $redirect_url_args, admin_url( 'admin.php?page=html-forms&view=edit' ) );
+		$redirect_url      = add_query_arg( $redirect_url_args, admin_url( 'admin.php?page=core-forms&view=edit' ) );
 		wp_safe_redirect( $redirect_url );
 		exit;
 	}
@@ -471,7 +459,7 @@ class Admin {
 		 *
 		 * @param array $actions
 		 */
-		$actions = apply_filters( 'hf_available_form_actions', $actions );
+		$actions = apply_filters( 'cf_available_form_actions', $actions );
 
 		return $actions;
 	}
@@ -484,24 +472,24 @@ class Admin {
 		}
 
 		$args         = array_map( 'intval', $_POST['id'] );
-		$table        = $wpdb->prefix . 'hf_submissions';
+		$table        = $wpdb->prefix . 'cf_submissions';
 		$placeholders = rtrim( str_repeat( '%d,', count( $args ) ), ',' );
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN( {$placeholders} );", $args ) );
 
-		$args[] = '_hf_%%';
+		$args[] = '_cf_%%';
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( {$placeholders}  ) AND meta_key LIKE %s;", $args ) );
 	}
 
 	private function get_default_form_content() {
-        $settings = hf_get_settings();
+        $settings = cf_get_settings();
         $wrapper_tag = ( isset( $settings['wrapper_tag'] ) ) ? $settings['wrapper_tag'] : 'p';
 
 		$html  = '';
-		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"text\" name=\"NAME\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Your name', 'html-forms' ) ) . PHP_EOL;
-		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"email\" name=\"EMAIL\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Your email', 'html-forms' ) ) . PHP_EOL;
-		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"text\" name=\"SUBJECT\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Subject', 'html-forms' ) ) . PHP_EOL;
-		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<textarea name=\"MESSAGE\" placeholder=\"%2\$s\" required></textarea>\n</%1\$s>", $wrapper_tag, __( 'Message', 'html-forms' ) ) . PHP_EOL;
-		$html .= sprintf( "<%1\$s>\n\t<input type=\"submit\" value=\"%2\$s\" />\n</%1\$s>", $wrapper_tag, __( 'Send', 'html-forms' ) );
+		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"text\" name=\"NAME\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Your name', 'core-forms' ) ) . PHP_EOL;
+		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"email\" name=\"EMAIL\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Your email', 'core-forms' ) ) . PHP_EOL;
+		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<input type=\"text\" name=\"SUBJECT\" placeholder=\"%2\$s\" required />\n</%1\$s>", $wrapper_tag, __( 'Subject', 'core-forms' ) ) . PHP_EOL;
+		$html .= sprintf( "<%1\$s>\n\t<label>%2\$s</label>\n\t<textarea name=\"MESSAGE\" placeholder=\"%2\$s\" required></textarea>\n</%1\$s>", $wrapper_tag, __( 'Message', 'core-forms' ) ) . PHP_EOL;
+		$html .= sprintf( "<%1\$s>\n\t<input type=\"submit\" value=\"%2\$s\" />\n</%1\$s>", $wrapper_tag, __( 'Send', 'core-forms' ) );
 
 		return $html;
 	}

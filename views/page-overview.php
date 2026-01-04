@@ -9,15 +9,15 @@ defined( 'ABSPATH' ) or exit;
 <div class="wrap hf">
 
     <p class="breadcrumbs">
-        <span class="prefix"><?php echo __( 'You are here: ', 'html-forms' ); ?></span>
-        <a href="<?php echo admin_url( 'admin.php?page=html-forms' ); ?>">HTML Forms</a> &rsaquo;
-        <span class="current-crumb"><strong><?php _e( 'Forms', 'html-forms' ); ?></strong></span>
+        <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">HTML Forms</a> &rsaquo;
+        <span class="current-crumb"><strong><?php _e( 'Forms', 'core-forms' ); ?></strong></span>
     </p>
 
-    <h1 class="page-title"><?php _e( 'Forms', 'html-forms' ); ?>
-        <a href="<?php echo admin_url( 'admin.php?page=html-forms-add-form' ); ?>" class="page-title-action">
+    <h1 class="page-title"><?php _e( 'Forms', 'core-forms' ); ?>
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms-add-form' ); ?>" class="page-title-action">
             <span class="dashicons dashicons-plus-alt" style="vertical-align: middle; line-height: 16px; margin: 0 4px 0 0; "></span>
-            <?php _e( 'Add New Form', 'html-forms' ); ?>
+            <?php _e( 'Add New Form', 'core-forms' ); ?>
         </a>
 
         <?php if ( ! empty( $_GET['s'] ) ) {
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) or exit;
         <?php if( ! empty( $_GET['post_status'] ) ) { ?>
             <input type="hidden" name="post_status" value="<?php echo esc_attr( $_GET['post_status'] ); ?>" />
         <?php } ?>
-        <?php $table->search_box( 'Search Forms', 'html-forms-search' ); ?>
+        <?php $table->search_box( 'Search Forms', 'core-forms-search' ); ?>
     </form>
 
     <form method="post">

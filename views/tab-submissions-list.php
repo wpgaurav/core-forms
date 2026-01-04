@@ -4,11 +4,11 @@ defined( 'ABSPATH' ) or exit;
 $date_format = get_option( 'date_format' );
 $datetime_format = sprintf('%s %s', $date_format, get_option( 'time_format' ) );
 
-add_action( 'hf_admin_form_submissions_table_output_column_header', function( $field, $column ) {
+add_action( 'cf_admin_form_submissions_table_output_column_header', function( $field, $column ) {
    echo $column;
 }, 10, 2 );
 
-$bulk_actions = apply_filters( 'hf_admin_form_submissions_bulk_actions', array(
+$bulk_actions = apply_filters( 'cf_admin_form_submissions_bulk_actions', array(
   'bulk_delete_submissions' => __( 'Delete Permanently' ),
 ));
 
@@ -42,13 +42,13 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
 ?>
 
 <h2>
-    <?php _e( 'Form Submissions', 'html-forms' ); ?>
-    <a target="_blank" tabindex="-1" class="html-forms-help" href="https://htmlformsplugin.com/kb/form-submissions/"><span class="dashicons dashicons-editor-help"></span></a>
+    <?php _e( 'Form Submissions', 'core-forms' ); ?>
+    <a target="_blank" tabindex="-1" class="core-forms-help" href="https://htmlformsplugin.com/kb/form-submissions/"><span class="dashicons dashicons-editor-help"></span></a>
 </h2>
 
 <?php if ( ! defined( 'HF_PREMIUM_VERSION' ) ) : ?>
-<p class="hf-premium">
-    <?php echo sprintf( __('Export submissions to CSV, mark submissions as seen or unseen, and manage data columns with <a href="%s">HTML Forms Premium</a>', 'html-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=html-forms&amp;utm_campaign=submissions-tab' ); ?>.
+<p class="cf-premium">
+    <?php echo sprintf( __('Export submissions to CSV, mark submissions as seen or unseen, and manage data columns with <a href="%s">HTML Forms Premium</a>', 'core-forms' ), 'https://htmlformsplugin.com/premium/#utm_source=wp-plugin&amp;utm_medium=core-forms&amp;utm_campaign=submissions-tab' ); ?>.
 </p>
 <?php endif; ?>
 
@@ -57,13 +57,13 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
     <div class="tablenav top">
         <div class="alignleft actions bulkactions">
             <label for="bulk-action-selector-top" class="screen-reader-text"><?php _e( 'Select bulk action' ); ?></label>
-            <select name="_hf_admin_action" id="bulk-action-selector-top">
+            <select name="_cf_admin_action" id="bulk-action-selector-top">
                 <option value=""><?php _e( 'Bulk Actions' ); ?></option>
                 <?php foreach( $bulk_actions as $key => $label ) {
                   echo sprintf( '<option value="%s">%s</option>', esc_attr( $key ), $label );
                 } ?>
             </select>
-			<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce('_hf_admin_action') ); ?>" />
+			<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce('_cf_admin_action') ); ?>" />
             <input type="submit" class="button action" value="<?php _e( 'Apply' ); ?>">
         </div>
 
@@ -73,17 +73,17 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
     </div>
 
     <div style="overflow-x: auto;">
-    <table class="hf-submissions wp-list-table widefat striped">
+    <table class="cf-submissions wp-list-table widefat striped">
         <thead>
             <tr>
                 <td id="cb" class="manage-column column-cb check-column"><input type="checkbox" /></td>
-                <th scope="col" class="hf-column manage-column column-primary">
-                  <?php _e( 'Timestamp', 'html-forms' ); ?>
+                <th scope="col" class="cf-column manage-column column-primary">
+                  <?php _e( 'Timestamp', 'core-forms' ); ?>
                 </th>
                 <?php foreach( $columns as $field => $column ) {
                     $hidden_class = in_array( $field, $hidden_columns ) ? 'hidden' : '';
-                    echo sprintf( '<th scope="col" class="hf-column hf-column-%s manage-column column-%s %s">', esc_attr( $field ), esc_attr( $field ), $hidden_class );
-                    do_action( 'hf_admin_form_submissions_table_output_column_header', $field, $column );
+                    echo sprintf( '<th scope="col" class="cf-column cf-column-%s manage-column column-%s %s">', esc_attr( $field ), esc_attr( $field ), $hidden_class );
+                    do_action( 'cf_admin_form_submissions_table_output_column_header', $field, $column );
                     echo '</th>';
                 } ?>
             </tr>
@@ -91,7 +91,7 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
         <tbody>
 
         <?php foreach( $submissions as $s ) { ?>
-           <tr id="hf-submissions-item-<?php echo $s->id; ?>">
+           <tr id="cf-submissions-item-<?php echo $s->id; ?>">
                <th scope="row" class="check-column">
                    <input type="checkbox" name="id[]" value="<?php echo esc_attr( $s->id ); ?>"/>
                </th>
@@ -101,7 +101,7 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
                        <?php echo sprintf( '<a href="%s">%s</a>', esc_attr( add_query_arg( array( 'tab' => 'submissions', 'submission_id' => $s->id ) ) ), esc_html( $s->submitted_at ) ); ?>
                    </abbr></strong>
                   <div class="row-actions">
-                    <?php do_action( 'hf_admin_form_submissions_table_output_row_actions', $s ); ?>
+                    <?php do_action( 'cf_admin_form_submissions_table_output_row_actions', $s ); ?>
                   </div>
                </td>
 
@@ -111,7 +111,7 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
 
                   // because some columns don't have a value, check if it's set here
                   if( ! empty( $s->data[$field] ) ) {
-                    echo hf_field_value( $s->data[$field], 100 );
+                    echo cf_field_value( $s->data[$field], 100 );
                   }
 
                   echo '</td>';
@@ -119,7 +119,7 @@ function tablenav_pages( $total_items, $current_page, $total_pages ) {
             </tr>
         <?php } ?>
         <?php if ( empty( $submissions ) ) {
-            printf( '<tr><td colspan="2">%s</td></tr>', __( 'Nothing to see here, yet!', 'html-forms' ) );
+            printf( '<tr><td colspan="2">%s</td></tr>', __( 'Nothing to see here, yet!', 'core-forms' ) );
         } ?>
         </tbody>
     </table>

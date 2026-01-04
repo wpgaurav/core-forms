@@ -1,6 +1,6 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
 
 /**
  * Class Migrations

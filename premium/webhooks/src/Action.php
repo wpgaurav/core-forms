@@ -1,9 +1,9 @@
 <?php
 
-namespace HTML_Forms\Actions;
+namespace Core_Forms\Actions;
 
-use HTML_Forms\Form;
-use HTML_Forms\Submission;
+use Core_Forms\Form;
+use Core_Forms\Submission;
 
 class Webhook extends Action
 {
@@ -12,7 +12,7 @@ class Webhook extends Action
 
     public function __construct()
     {
-        $this->label = __('Trigger Webhook', 'html-forms');
+        $this->label = __('Trigger Webhook', 'core-forms');
     }
 
    /**
@@ -41,13 +41,13 @@ class Webhook extends Action
 
        <table class="form-table">
            <tr>
-               <th><label for="<?php echo "hf-webhook-$index-url"; ?>"><?php echo __('Webhook URL', 'html-forms'); ?> <span class="hf-required">*</span></label></th>
+               <th><label for="<?php echo "hf-webhook-$index-url"; ?>"><?php echo __('Webhook URL', 'core-forms'); ?> <span class="hf-required">*</span></label></th>
                <td>
                    <input id="<?php echo "hf-webhook-$index-url"; ?>" name="form[settings][actions][<?php echo $index; ?>][url]" value="<?php echo esc_attr($settings['url']); ?>" type="url" class="regular-text" placeholder="https://example.com/postreceive" required />
                </td>
            </tr>
            <tr>
-               <th><label for="<?php echo "hf-webhook-$index-content_type"; ?>"><?php echo __('Content Type', 'html-forms'); ?></label></th>
+               <th><label for="<?php echo "hf-webhook-$index-content_type"; ?>"><?php echo __('Content Type', 'core-forms'); ?></label></th>
                <td>
                   <select id="<?php echo "hf-webhook-$index-url"; ?>" class="regular-text" name="form[settings][actions][<?php echo $index; ?>][content_type]">
                     <option value="json" <?php selected($settings['content_type'], 'json'); ?>>application/json</option>
@@ -57,7 +57,7 @@ class Webhook extends Action
            </tr>
            <?php /*
             <tr>
-               <th><label><?php echo __( 'Secret', 'html-forms' ); ?></label></th>
+               <th><label><?php echo __( 'Secret', 'core-forms' ); ?></label></th>
                <td>
                    <input name="form[settings][actions][<?php echo $index; ?>][secret]" value="<?php echo esc_attr( $settings['secret'] ); ?>" type="password" class="regular-text" placeholder="" />
                </td>

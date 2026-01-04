@@ -1,10 +1,10 @@
 <?php
 
-namespace HTML_Forms\Notifications;
+namespace Core_Forms\Notifications;
 
 function get_notifications() {
 	global $wpdb;
-	$meta_key = '_hf_unseen_submissions';
+	$meta_key = '_cf_unseen_submissions';
 	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM $wpdb->postmeta WHERE meta_key = %s", $meta_key ) );
 
 	$global_notifications = array();
@@ -31,7 +31,7 @@ function get_notification_count() {
 }
 
 function get_notifications_for_form( $form_id ) {
-	$notifications = get_post_meta( $form_id, '_hf_unseen_submissions', true );
+	$notifications = get_post_meta( $form_id, '_cf_unseen_submissions', true );
 	if( empty( $notifications ) ) {
 		return array();
 	}
@@ -43,7 +43,7 @@ function get_notifications_for_form( $form_id ) {
 }
 
 function set_notifications_for_form( $form_id, array $notifications ) {
-	update_post_meta( $form_id, '_hf_unseen_submissions', array_values($notifications));
+	update_post_meta( $form_id, '_cf_unseen_submissions', array_values($notifications));
 }
 
 function get_notification_count_for_form( $form_id ) {
@@ -55,7 +55,7 @@ function add_notification_for_form( $form_id, $submission_id ) {
 	$notifications = get_notifications_for_form( $form_id );
 
 	// filter out unexisting submissions (deleted ones)
-	$submissions = hf_get_form_submissions( $form_id );
+	$submissions = cf_get_form_submissions( $form_id );
 	foreach( $notifications as $key => $nsub_id ) {
 		if( ! isset( $submissions[$nsub_id] ) ) {
 			unset( $notifications[$key] );

@@ -1,8 +1,11 @@
 <?php
 
-namespace HTML_Forms\Admin;
+namespace Core_Forms\Admin;
 
-use HTML_Forms\Submission;
+use Core_Forms\Submission;
+
+// Create backward compatible alias for old namespace
+
 
 class GDPR {
 	public function hook() {
@@ -11,7 +14,7 @@ class GDPR {
 	}
 
 	public function register_exporter( $exporters ) {
-		$exporters['html-forms'] = array(
+		$exporters['core-forms'] = array(
 			'exporter_friendly_name' => 'HTML Forms',
 			'callback'               => array( $this, 'export' ),
 		);
@@ -19,7 +22,7 @@ class GDPR {
 	}
 
 	public function register_eraser( $erasers ) {
-		$erasers['html-forms'] = array(
+		$erasers['core-forms'] = array(
 			'eraser_friendly_name' => 'HTML Forms',
 			'callback'             => array( $this, 'erase' ),
 		);
@@ -32,9 +35,9 @@ class GDPR {
 
 		foreach ( $submissions as $s ) {
 			$data_to_export[] = array(
-				'group_id'    => 'html_forms_submissions',
-				'group_label' => __( 'Form submissions', 'html-forms' ),
-				'item_id'     => sprintf( 'html-forms-submission-%d', $s->id ),
+				'group_id'    => 'core_forms_submissions',
+				'group_label' => __( 'Form submissions', 'core-forms' ),
+				'item_id'     => sprintf( 'core-forms-submission-%d', $s->id ),
 				'data'        => $this->export_submission( $s ),
 			);
 		}
@@ -79,7 +82,7 @@ class GDPR {
 
 	public function erase( $email_address, $page = 1 ) {
 		global $wpdb;
-		$table = $wpdb->prefix . 'hf_submissions';
+		$table = $wpdb->prefix . 'cf_submissions';
 
 		$items_removed = false;
 		$submissions   = $this->find_submissions_for_email_address( $email_address );
@@ -98,7 +101,7 @@ class GDPR {
 
 	private function find_submissions_for_email_address( $email_address ) {
 		global $wpdb;
-		$table   = $wpdb->prefix . 'hf_submissions';
+		$table   = $wpdb->prefix . 'cf_submissions';
 		$like    = '%"' . $email_address . '"%';
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT s.* FROM {$table} s WHERE s.data LIKE %s ORDER BY s.submitted_at DESC", $like ), OBJECT_K );
 

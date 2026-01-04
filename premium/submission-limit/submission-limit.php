@@ -1,9 +1,14 @@
 <?php
 
-namespace HTML_Forms\Submission_limit;
+namespace Core_Forms\Submission_limit;
 
-add_filter('hf_form_default_messages', function ($msgs) {
-    $msgs['submission_limit_reached'] = __('The submission limit for this form has been reached.', 'html-forms-premium');
+// Support both cf_ and cf_ prefixed filters
+add_filter('cf_form_default_messages', function ($msgs) {
+    $msgs['submission_limit_reached'] = __('The submission limit for this form has been reached.', 'core-forms');
+    return $msgs;
+});
+add_filter('cf_form_default_messages', function ($msgs) {
+    $msgs['submission_limit_reached'] = __('The submission limit for this form has been reached.', 'core-forms');
     return $msgs;
 });
 
