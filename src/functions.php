@@ -106,6 +106,32 @@ function cf_get_form( $form_id_or_slug ) {
 }
 
 /**
+ * Get a form by slug only (ignores numeric check)
+ *
+ * @param string $slug
+ * @return Form
+ * @throws Exception
+ */
+function cf_get_form_by_slug( $slug ) {
+    $query = new WP_Query;
+    $posts = $query->query(
+        array(
+            'post_type'           => 'core-form',
+            'name'                => $slug,
+            'post_status'         => 'publish',
+            'posts_per_page'      => 1,
+            'ignore_sticky_posts' => true,
+            'no_found_rows'       => true,
+        )
+    );
+    if ( empty( $posts ) ) {
+        throw new Exception( 'Invalid form slug' );
+    }
+
+    return cf_get_form( $posts[0] );
+}
+
+/**
  * Count form submissions
  * 
  * @param $form_id

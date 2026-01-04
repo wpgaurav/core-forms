@@ -112,8 +112,9 @@ class Forms {
             'cf_form'
         );
 
-        // Grab form from slug or ID attribute
-        $form_id_or_slug = ! empty( $attributes['slug'] ) ? $attributes['slug'] : $attributes['id'];
+        // Determine if we're looking up by slug or ID
+        $use_slug = ! empty( $attributes['slug'] );
+        $form_id_or_slug = $use_slug ? $attributes['slug'] : $attributes['id'];
 
         // Allow filtering of form ID
         $form_id_or_slug = apply_filters( 'cf_shortcode_form_identifier', $form_id_or_slug, $attributes );
@@ -124,7 +125,12 @@ class Forms {
         }
 
         try {
-            $form = cf_get_form( $form_id_or_slug );
+            // If slug attribute was used, always do slug lookup (even for numeric slugs like "001")
+            if ( $use_slug ) {
+                $form = cf_get_form_by_slug( $form_id_or_slug );
+            } else {
+                $form = cf_get_form( $form_id_or_slug );
+            }
         } catch ( \Exception $e ) {
             // swallow exception
             return '';
