@@ -65,13 +65,17 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		 *
 		 */
 		public function get_views() {
-			$counts    = wp_count_posts( 'html-form' );
+			$counts    = wp_count_posts( 'core-form' );
 			$current   = isset( $_GET['post_status'] ) ? $_GET['post_status'] : '';
-			$count_any = $counts->publish + $counts->draft + $counts->future + $counts->pending;
+			$count_any = ( isset( $counts->publish ) ? $counts->publish : 0 )
+			           + ( isset( $counts->draft ) ? $counts->draft : 0 )
+			           + ( isset( $counts->future ) ? $counts->future : 0 )
+			           + ( isset( $counts->pending ) ? $counts->pending : 0 );
+			$count_trash = isset( $counts->trash ) ? $counts->trash : 0;
 
 			return array(
 				''      => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( remove_query_arg( 'post_status' ) ), $current == '' ? 'current' : '', __( 'All', 'core-forms' ), $count_any ),
-				'trash' => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( add_query_arg( array( 'post_status' => 'trash' ) ) ), $current == 'trash' ? 'current' : '', __( 'Trash', 'core-forms' ), $counts->trash ),
+				'trash' => sprintf( '<a href="%s" class="%s">%s</a> (%d)', esc_url( add_query_arg( array( 'post_status' => 'trash' ) ) ), $current == 'trash' ? 'current' : '', __( 'Trash', 'core-forms' ), $count_trash ),
 			);
 		}
 
