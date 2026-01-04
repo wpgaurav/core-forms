@@ -3,7 +3,7 @@
 Plugin Name: Core Forms
 Plugin URI: https://developer.developer/plugins/core-forms
 Description: A simpler, faster, and smarter WordPress forms plugin with premium features included.
-Version: 2.0.15
+Version: 2.0.16
 Author: developer developer
 Author URI: https://developer.developer
 License: GPL v3
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'CORE_FORMS_VERSION', '2.0.15' );
+define( 'CORE_FORMS_VERSION', '2.0.16' );
 define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -75,6 +75,12 @@ function _bootstrap() {
     if ( \class_exists( 'Core_Forms\\Admin\\Recaptcha' ) ) {
         $recaptcha = new Admin\Recaptcha();
         $recaptcha->hook();
+    }
+
+    // Initialize Akismet spam filtering (if Akismet plugin is active)
+    if ( \class_exists( 'Akismet' ) ) {
+        $akismet = new Admin\Akismet();
+        $akismet->hook();
     }
 
     // Load premium features (now integrated)

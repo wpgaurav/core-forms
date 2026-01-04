@@ -92,6 +92,7 @@ function cf_get_form( $form_id_or_slug ) {
         'error'                  => __( 'Oops. An error occurred.', 'core-forms' ),
         'recaptcha_failed'       => __( 'reCAPTCHA verification failed. Please try again.', 'core-forms' ),
         'recaptcha_low_score'    => __( 'Your submission appears to be spam. Please try again.', 'core-forms' ),
+        'spam'                   => __( 'Your submission was flagged as spam.', 'core-forms' ),
     );
     $default_messages = apply_filters( 'cf_form_default_messages', $default_messages );
     $messages         = array();
