@@ -17,10 +17,18 @@ function cf_get_forms( array $args = array() ) {
         'ignore_sticky_posts' => true,
         'no_found_rows'       => true,
     );
-    $args         = array_merge( $default_args, $args );
-    $query        = new WP_Query;
-    $posts        = $query->query( $args );
-    $forms        = array_map( 'cf_get_form', $posts );
+    $args  = array_merge( $default_args, $args );
+    $query = new WP_Query;
+    $posts = $query->query( $args );
+    $forms = array();
+    foreach ( $posts as $post ) {
+        try {
+            $forms[] = cf_get_form( $post );
+        } catch ( Exception $e ) {
+            // Skip invalid forms
+            continue;
+        }
+    }
     return $forms;
 }
 

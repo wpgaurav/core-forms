@@ -76,6 +76,9 @@ class Admin {
 		$version_from = get_option( 'cf_version', '0.0' );
 		$version_to   = CORE_FORMS_VERSION;
 
+		// Always ensure any html-form posts are converted to core-form
+		$this->ensure_post_type_migrated();
+
 		if ( version_compare( $version_from, $version_to, '>=' ) ) {
 			return;
 		}
@@ -83,6 +86,20 @@ class Admin {
 		$migrations = new Migrations( $version_from, $version_to, dirname( $this->plugin_file ) . '/migrations' );
 		$migrations->run();
 		update_option( 'cf_version', CORE_FORMS_VERSION );
+	}
+
+	/**
+	 * Ensure all html-form posts are migrated to core-form
+	 */
+	private function ensure_post_type_migrated() {
+		global $wpdb;
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s",
+				'core-form',
+				'html-form'
+			)
+		);
 	}
 
 	/**
