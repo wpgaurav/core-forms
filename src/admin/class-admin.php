@@ -163,19 +163,28 @@ class Admin {
 		}
 
 		$settings = cf_get_settings();
+		$current_page = $_GET['page'];
 
 		wp_enqueue_style( 'core-forms-admin', plugins_url( 'assets/css/admin.css', $this->plugin_file ), array(), CORE_FORMS_VERSION );
-		wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
-		wp_localize_script(
-			'core-forms-admin',
-			'cf_options',
-			array(
-				'page'    => $_GET['page'],
-				'view'    => empty( $_GET['view'] ) ? '' : $_GET['view'],
-				'form_id' => empty( $_GET['form_id'] ) ? 0 : (int) $_GET['form_id'],
-				'wrapper_tag' => empty( $settings['wrapper_tag'] ) ? 'p' : $settings['wrapper_tag'],
-			)
-		);
+
+		// Only load admin.js on pages that need it (pages with tabs, form builder, etc.)
+		// Exclude simple listing pages like spam management
+		$pages_needing_admin_js = array( 'core-forms', 'core-forms-add-form', 'core-forms-settings' );
+		$needs_admin_js = in_array( $current_page, $pages_needing_admin_js, true ) || ! empty( $_GET['form_id'] );
+
+		if ( $needs_admin_js ) {
+			wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
+			wp_localize_script(
+				'core-forms-admin',
+				'cf_options',
+				array(
+					'page'    => $current_page,
+					'view'    => empty( $_GET['view'] ) ? '' : $_GET['view'],
+					'form_id' => empty( $_GET['form_id'] ) ? 0 : (int) $_GET['form_id'],
+					'wrapper_tag' => empty( $settings['wrapper_tag'] ) ? 'p' : $settings['wrapper_tag'],
+				)
+			);
+		}
 
 		// Enqueue WordPress code editor for form markup editing
 		if ( ! empty( $_GET['form_id'] ) || $_GET['page'] === 'core-forms-add-form' ) {
