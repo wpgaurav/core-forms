@@ -6,22 +6,22 @@ defined( 'ABSPATH' ) or exit;
  * @var HTML_Forms\Admin\Table $table
  */
 ?>
-<div class="wrap hf">
+<div class="wrap cf">
 
-    <p class="breadcrumbs">
+    <nav class="breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'core-forms' ); ?>">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
         <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">Core Forms</a> &rsaquo;
-        <span class="current-crumb"><strong><?php _e( 'Forms', 'core-forms' ); ?></strong></span>
-    </p>
+        <span class="current-crumb" aria-current="page"><strong><?php _e( 'Forms', 'core-forms' ); ?></strong></span>
+    </nav>
 
-    <h1 class="page-title"><?php _e( 'Forms', 'core-forms' ); ?>
-        <a href="<?php echo admin_url( 'admin.php?page=core-forms-add-form' ); ?>" class="page-title-action">
-            <span class="dashicons dashicons-plus-alt" style="vertical-align: middle; line-height: 16px; margin: 0 4px 0 0; "></span>
+    <h1 class="page-title" id="cf-page-title"><?php _e( 'Forms', 'core-forms' ); ?>
+        <a href="<?php echo admin_url( 'admin.php?page=core-forms-add-form' ); ?>" class="page-title-action" aria-label="<?php esc_attr_e( 'Add New Form', 'core-forms' ); ?>">
+            <span class="dashicons dashicons-plus-alt" style="vertical-align: middle; line-height: 16px; margin: 0 4px 0 0;" aria-hidden="true"></span>
             <?php _e( 'Add New Form', 'core-forms' ); ?>
         </a>
 
         <?php if ( ! empty( $_GET['s'] ) ) {
-            printf(' <span class="subtitle">' . __('Search results for &#8220;%s&#8221;') . '</span>', sanitize_text_field( $_GET['s'] ) );
+            printf(' <span class="subtitle" role="status">' . __('Search results for &#8220;%s&#8221;') . '</span>', sanitize_text_field( $_GET['s'] ) );
         } ?>
     </h1>
 

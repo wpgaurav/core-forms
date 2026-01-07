@@ -1,6 +1,6 @@
 <?php defined( 'ABSPATH' ) or exit; ?>
 
-<div class="wrap hf">
+<div class="wrap cf">
 
     <p class="breadcrumbs">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>

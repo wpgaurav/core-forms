@@ -18,6 +18,7 @@ class ComposerStaticInit4c9280af2fa7b60b352430cf33ad5523
         'Core_Forms\\Admin\\Admin' => __DIR__ . '/../..' . '/src/admin/class-admin.php',
         'Core_Forms\\Admin\\Akismet' => __DIR__ . '/../..' . '/src/admin/class-akismet.php',
         'Core_Forms\\Admin\\GDPR' => __DIR__ . '/../..' . '/src/admin/class-gdpr.php',
+        'Core_Forms\\Admin\\MathCaptcha' => __DIR__ . '/../..' . '/src/admin/class-math-captcha.php',
         'Core_Forms\\Admin\\Hcaptcha' => __DIR__ . '/../..' . '/src/admin/class-hcaptcha.php',
         'Core_Forms\\Admin\\Migrations' => __DIR__ . '/../..' . '/src/admin/class-migrations.php',
         'Core_Forms\\Admin\\Recaptcha' => __DIR__ . '/../..' . '/src/admin/class-recaptcha.php',

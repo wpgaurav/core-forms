@@ -4,25 +4,25 @@ $tabs = cf_get_admin_tabs($form);
 
 ?>
 <script>document.title = 'Edit Form' + ' - ' + document.title;</script>
-<div class="wrap hf">
+<div class="wrap cf">
 
-    <p class="breadcrumbs">
+    <nav class="breadcrumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'core-forms' ); ?>">
         <span class="prefix"><?php echo __( 'You are here: ', 'core-forms' ); ?></span>
         <a href="<?php echo admin_url( 'admin.php?page=core-forms' ); ?>">Core Forms</a> &rsaquo;
-        <span class="current-crumb"><strong><?php _e( 'Edit Form', 'core-forms' ); ?></strong></span>
-    </p>
+        <span class="current-crumb" aria-current="page"><strong><?php _e( 'Edit Form', 'core-forms' ); ?></strong></span>
+    </nav>
 
-    <h1 class="page-title"><?php _e( 'Edit Form', 'core-forms' ); ?></h1>
+    <h1 class="page-title" id="cf-page-title"><?php _e( 'Edit Form', 'core-forms' ); ?></h1>
 
     <?php if ( ! empty( $_GET['saved'] ) ) {
         echo '<div class="notice notice-success"><p>' . __( 'Form updated.', 'core-forms' ) . '</p></div>';
     } ?>
 
-    <form method="post">
+    <form method="post" aria-labelledby="cf-page-title">
         <input type="hidden" name="_cf_admin_action" value="save_form" />
 		<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( wp_create_nonce('_cf_admin_action') ); ?>" />
         <input type="hidden" name="form_id" value="<?php echo esc_attr( $form->ID ); ?>" />
-        <input type="submit" style="display: none; " />
+        <input type="submit" style="display: none;" aria-hidden="true" tabindex="-1" />
 
         <div id="titlediv">
             <div id="titlewrap">
@@ -51,10 +51,11 @@ $tabs = cf_get_admin_tabs($form);
         </table>
 
         <div class="cf-small-margin">
-            <h2 class="nav-tab-wrapper" id="cf-tabs-nav">
+            <h2 class="nav-tab-wrapper" id="cf-tabs-nav" role="tablist" aria-label="<?php esc_attr_e( 'Form Settings', 'core-forms' ); ?>">
                 <?php foreach( $tabs as $tab => $name ) {
                     $class = ( $active_tab === $tab ) ? 'nav-tab-active' : '';
-                    echo sprintf( '<a class="nav-tab nav-tab-%s %s" data-tab-target="%s" href="%s">%s</a>', $tab, $class, $tab, $this->get_tab_url( $tab ), $name );
+                    $selected = ( $active_tab === $tab ) ? 'true' : 'false';
+                    echo sprintf( '<a class="nav-tab nav-tab-%s %s" data-tab-target="%s" href="%s" role="tab" aria-selected="%s" aria-controls="tab-%s" id="tab-link-%s">%s</a>', $tab, $class, $tab, $this->get_tab_url( $tab ), $selected, $tab, $tab, $name );
                 } ?>
             </h2>
 
@@ -63,7 +64,8 @@ $tabs = cf_get_admin_tabs($form);
                 // output each tab
                 foreach( $tabs as $tab => $name ) {
                     $class = ($active_tab === $tab) ? 'cf-tab-active' : '';
-                    echo sprintf('<div class="cf-tab %s" id="tab-%s" data-tab="%s">', $class, $tab, $tab);
+                    $hidden = ($active_tab === $tab) ? 'false' : 'true';
+                    echo sprintf('<div class="cf-tab %s" id="tab-%s" data-tab="%s" role="tabpanel" aria-labelledby="tab-link-%s" aria-hidden="%s">', $class, $tab, $tab, $tab, $hidden);
                     do_action( 'cf_admin_output_form_tab_' . $tab, $form );
                     echo '</div>';
                 } // end foreach tab

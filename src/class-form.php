@@ -55,26 +55,26 @@ class Form {
         $settings = cf_get_settings();
 
         $html  = '';
-        $html .= sprintf( '<!-- Core Forms v%s - %s -->', CORE_FORMS_VERSION, 'https://developer.developer/plugins/core-forms/' ) . PHP_EOL;
-        $html .= sprintf( '<form method="post" %s class="cf-form cf-form-%d %s" %s>', $form_action_attr, $this->ID, esc_attr( $form_classes_attr ), $data_attributes );
-        
+        $html .= sprintf( '<form method="post" %s class="cf-form cf-form-%d %s" %s novalidate aria-label="%s">', $form_action_attr, $this->ID, esc_attr( $form_classes_attr ), $data_attributes, esc_attr( $this->title ) );
+
         if ( $settings['enable_nonce'] ) {
             $html .= wp_nonce_field( 'core_forms_submit', '_wpnonce', true, false );
         }
 
         $html .= '<input type="hidden" name="action" value="cf_form_submit" />';
         $html .= sprintf( '<input type="hidden" name="_cf_form_id" value="%d" />', $this->ID );
-        $html .= sprintf( '<div style="display: none;"><input type="text" name="_cf_h%d" value="" /></div>', $this->ID );
+        $html .= sprintf( '<div style="display: none;" aria-hidden="true"><input type="text" name="_cf_h%d" value="" tabindex="-1" autocomplete="off" /></div>', $this->ID );
+        $html .= '<div class="cf-messages" role="status" aria-live="polite" aria-atomic="true"></div>';
         $html .= '<div class="cf-fields-wrap">';
         $html .= $this->get_markup();
-        $html .= '<noscript>' . __( 'Please enable JavaScript for this form to work.', 'core-forms' ) . '</noscript>';
+        $html .= '<noscript><p role="alert">' . __( 'Please enable JavaScript for this form to work.', 'core-forms' ) . '</p></noscript>';
         $html .= '</div>'; // end field wrap
         $html .= '</form>';
-        $html .= '<!-- / Core Forms -->';
 
-        // ensure JS script is enqueued whenever this function is called
+        // ensure JS scripts are enqueued whenever this function is called
         if ( function_exists( 'wp_enqueue_script' ) ) {
             wp_enqueue_script( 'core-forms' );
+            wp_enqueue_script( 'core-forms-a11y' );
         }
 
         /**

@@ -85,6 +85,10 @@ class Forms {
                 'ajax_url' => admin_url( 'admin-ajax.php' ),
             )
         );
+
+        // Register accessibility enhancements script
+        wp_register_script( 'core-forms-a11y', $this->assets_url . 'js/accessibility.js', array( 'core-forms' ), CORE_FORMS_VERSION, true );
+
         wp_register_style( 'core-forms', $this->assets_url . 'css/forms.css', array(), CORE_FORMS_VERSION );
         add_filter( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_stylesheet' ) );
     }
@@ -254,28 +258,32 @@ class Forms {
 
         do_action( 'cf_process_form', $form, $submission, $data, $error_code );
 
+        // Check if this is spam
+        $is_spam = ( $error_code === 'spam' );
+
+        // Save submission (including spam) if save_submissions is enabled
+        if ( $form->settings['save_submissions'] ) {
+            global $wpdb;
+
+            $wpdb->insert(
+                $wpdb->prefix . 'cf_submissions',
+                array(
+                    'form_id'      => $submission->form_id,
+                    'data'         => json_encode( $submission->data ),
+                    'ip_address'   => $submission->ip_address,
+                    'user_agent'   => $submission->user_agent,
+                    'referer_url'  => $submission->referer_url,
+                    'is_spam'      => $is_spam ? 1 : 0,
+                    'submitted_at' => $submission->submitted_at,
+                )
+            );
+            $submission->id = $wpdb->insert_id;
+            $submission->is_spam = $is_spam;
+
+            do_action( 'cf_submission_inserted', $submission, $form );
+        }
+
         if ( $error_code === '' ) {
-
-            // save submission
-            if ( $form->settings['save_submissions'] ) {
-                global $wpdb;
-
-                $wpdb->insert(
-                    $wpdb->prefix . 'cf_submissions',
-                    array(
-                        'form_id'      => $submission->form_id,
-                        'data'         => json_encode( $submission->data ),
-                        'ip_address'   => $submission->ip_address,
-                        'user_agent'   => $submission->user_agent,
-                        'referer_url'  => $submission->referer_url,
-                        'submitted_at' => $submission->submitted_at,
-                    )
-                );
-                $submission->id = $wpdb->insert_id;
-
-                do_action( 'cf_submission_inserted', $submission, $form );
-            }
-
             do_action( 'cf_form_success', $submission, $form );
 
             // run actions

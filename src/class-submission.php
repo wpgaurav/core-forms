@@ -9,6 +9,7 @@ class Submission {
     public $user_agent;
     public $ip_address;
     public $referer_url;
+    public $is_spam;
     public $submitted_at;
 
     public static function from_object( $object ) {
@@ -19,6 +20,7 @@ class Submission {
         $submission->ip_address   = isset( $object->ip_address ) ? $object->ip_address : '';
         $submission->user_agent   = isset( $object->user_agent ) ? $object->user_agent : '';
         $submission->referer_url  = isset( $object->referer_url ) ? $object->referer_url : '';
+        $submission->is_spam      = isset( $object->is_spam ) ? (bool) $object->is_spam : false;
         $submission->submitted_at = isset( $object->submitted_at ) ? $object->submitted_at : '';
         return $submission;
     }

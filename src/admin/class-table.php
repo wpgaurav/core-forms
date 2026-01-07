@@ -304,7 +304,7 @@ if ( class_exists( 'WP_List_Table' ) ) {
 		 *
 		 */
 		public function single_row( $form ) {
-			echo sprintf( '<tr id="hf-forms-item-%d">', $form->ID );
+			echo sprintf( '<tr id="cf-forms-item-%d">', $form->ID );
 			$this->single_row_columns( $form );
 			echo '</tr>';
 		}

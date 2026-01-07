@@ -13,6 +13,7 @@ return array(
     'Core_Forms\\Admin\\Admin' => $baseDir . '/src/admin/class-admin.php',
     'Core_Forms\\Admin\\Akismet' => $baseDir . '/src/admin/class-akismet.php',
     'Core_Forms\\Admin\\GDPR' => $baseDir . '/src/admin/class-gdpr.php',
+    'Core_Forms\\Admin\\MathCaptcha' => $baseDir . '/src/admin/class-math-captcha.php',
     'Core_Forms\\Admin\\Hcaptcha' => $baseDir . '/src/admin/class-hcaptcha.php',
     'Core_Forms\\Admin\\Migrations' => $baseDir . '/src/admin/class-migrations.php',
     'Core_Forms\\Admin\\Recaptcha' => $baseDir . '/src/admin/class-recaptcha.php',

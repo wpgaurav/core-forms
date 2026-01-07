@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Core Forms
-Plugin URI: https://developer.developer/plugins/core-forms
+Plugin URI: https://gauravtiwari.org/plugins/core-forms
 Description: A simpler, faster, and smarter WordPress forms plugin with premium features included.
-Version: 2.0.16
-Author: developer developer
-Author URI: https://developer.developer
+Version: 2.0.19
+Author: Gaurav Tiwari
+Author URI: https://gauravtiwari.org
 License: GPL v3
 Text Domain: core-forms
 Domain Path: /languages
@@ -13,7 +13,7 @@ Requires at least: 6.0
 Requires PHP: 7.4
 
 Core Forms
-Copyright (C) 2017-2026, developer developer <developer@developer.developer>
+Copyright (C) 2017-2026, Gaurav Tiwari <hello@gauravtiwari.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'CORE_FORMS_VERSION', '2.0.16' );
+define( 'CORE_FORMS_VERSION', '2.0.19' );
 define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -82,6 +82,10 @@ function _bootstrap() {
         $akismet = new Admin\Akismet();
         $akismet->hook();
     }
+
+    // Initialize Math Captcha (simple spam protection)
+    $math_captcha = new Admin\MathCaptcha();
+    $math_captcha->hook();
 
     // Load premium features (now integrated)
     _load_premium_features();

@@ -30,12 +30,12 @@
 /* ============================================
    Base Layout
    ============================================ */
-.wrap.hf {
+.wrap.cf {
     max-width: 1400px;
     margin: 20px 20px 0 2px;
 }
 
-.wrap.hf .page-title {
+.wrap.cf .page-title {
     font-size: 1.75rem;
     font-weight: 600;
     color: var(--cf-text);
@@ -45,7 +45,7 @@
     gap: 12px;
 }
 
-.wrap.hf .page-title-action {
+.wrap.cf .page-title-action {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -61,36 +61,36 @@
     box-shadow: var(--cf-shadow-sm);
 }
 
-.wrap.hf .page-title-action:hover {
+.wrap.cf .page-title-action:hover {
     background: var(--cf-primary-hover);
     color: #fff;
     transform: translateY(-1px);
     box-shadow: var(--cf-shadow);
 }
 
-.wrap.hf .page-title-action .dashicons {
+.wrap.cf .page-title-action .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
 }
 
 /* Breadcrumbs */
-.wrap.hf .breadcrumbs {
+.wrap.cf .breadcrumbs {
     font-size: 13px;
     color: var(--cf-text-muted);
     margin-bottom: 8px;
 }
 
-.wrap.hf .breadcrumbs a {
+.wrap.cf .breadcrumbs a {
     color: var(--cf-primary);
     text-decoration: none;
 }
 
-.wrap.hf .breadcrumbs a:hover {
+.wrap.cf .breadcrumbs a:hover {
     text-decoration: underline;
 }
 
-.wrap.hf .breadcrumbs .prefix {
+.wrap.cf .breadcrumbs .prefix {
     display: none;
 }
 
@@ -454,30 +454,30 @@
 }
 
 /* Form Table */
-.wrap.hf .form-table th {
+.wrap.cf .form-table th {
     padding: 16px 12px 16px 0;
     font-weight: 600;
     color: var(--cf-text);
 }
 
-.wrap.hf .form-table td {
+.wrap.cf .form-table td {
     padding: 12px 0;
 }
 
-.wrap.hf .form-table input.regular-text {
+.wrap.cf .form-table input.regular-text {
     border-radius: var(--cf-radius-sm);
     border: 1px solid var(--cf-border);
     padding: 8px 12px;
     transition: var(--cf-transition);
 }
 
-.wrap.hf .form-table input.regular-text:focus {
+.wrap.cf .form-table input.regular-text:focus {
     border-color: var(--cf-primary);
     box-shadow: 0 0 0 3px var(--cf-primary-light);
     outline: none;
 }
 
-.wrap.hf .form-table .description {
+.wrap.cf .form-table .description {
     color: var(--cf-text-muted);
     font-style: normal;
     margin-top: 6px;
@@ -486,8 +486,8 @@
 /* ============================================
    Buttons
    ============================================ */
-.wrap.hf .button-primary,
-.wrap.hf input[type="submit"].button-primary {
+.wrap.cf .button-primary,
+.wrap.cf input[type="submit"].button-primary {
     background: var(--cf-primary);
     border-color: var(--cf-primary);
     border-radius: var(--cf-radius-sm);
@@ -498,21 +498,21 @@
     box-shadow: var(--cf-shadow-sm);
 }
 
-.wrap.hf .button-primary:hover,
-.wrap.hf input[type="submit"].button-primary:hover {
+.wrap.cf .button-primary:hover,
+.wrap.cf input[type="submit"].button-primary:hover {
     background: var(--cf-primary-hover);
     border-color: var(--cf-primary-hover);
     transform: translateY(-1px);
     box-shadow: var(--cf-shadow);
 }
 
-.wrap.hf .button-primary:focus,
-.wrap.hf input[type="submit"].button-primary:focus {
+.wrap.cf .button-primary:focus,
+.wrap.cf input[type="submit"].button-primary:focus {
     box-shadow: 0 0 0 3px var(--cf-primary-light);
 }
 
-.wrap.hf .button,
-.wrap.hf .button-secondary {
+.wrap.cf .button,
+.wrap.cf .button-secondary {
     border-radius: var(--cf-radius-sm);
     transition: var(--cf-transition);
 }
@@ -841,19 +841,19 @@ p.cf-premium a {
 /* ============================================
    Notices & Messages
    ============================================ */
-.wrap.hf .notice {
+.wrap.cf .notice {
     border-radius: var(--cf-radius-sm);
     border-left-width: 4px;
     padding: 12px 16px;
     margin: 16px 0;
 }
 
-.wrap.hf .notice-success {
+.wrap.cf .notice-success {
     background: var(--cf-success-light);
     border-color: var(--cf-success);
 }
 
-.wrap.hf .notice-error {
+.wrap.cf .notice-error {
     background: var(--cf-danger-light);
     border-color: var(--cf-danger);
 }
@@ -942,24 +942,24 @@ p.cf-premium a {
 /* ============================================
    Search Box
    ============================================ */
-.wrap.hf .search-box {
+.wrap.cf .search-box {
     margin-bottom: 16px;
 }
 
-.wrap.hf .search-box input[type="search"] {
+.wrap.cf .search-box input[type="search"] {
     border-radius: var(--cf-radius-sm);
     border: 1px solid var(--cf-border);
     padding: 6px 12px;
     transition: var(--cf-transition);
 }
 
-.wrap.hf .search-box input[type="search"]:focus {
+.wrap.cf .search-box input[type="search"]:focus {
     border-color: var(--cf-primary);
     box-shadow: 0 0 0 3px var(--cf-primary-light);
     outline: none;
 }
 
-.wrap.hf .search-box input[type="submit"] {
+.wrap.cf .search-box input[type="submit"] {
     border-radius: var(--cf-radius-sm);
     margin-left: 4px;
 }
@@ -967,21 +967,21 @@ p.cf-premium a {
 /* ============================================
    Views Filter
    ============================================ */
-.wrap.hf .subsubsub {
+.wrap.cf .subsubsub {
     margin-bottom: 12px;
 }
 
-.wrap.hf .subsubsub a {
+.wrap.cf .subsubsub a {
     padding: 4px 8px;
     border-radius: var(--cf-radius-sm);
     transition: var(--cf-transition);
 }
 
-.wrap.hf .subsubsub a:hover {
+.wrap.cf .subsubsub a:hover {
     background: var(--cf-bg);
 }
 
-.wrap.hf .subsubsub .current {
+.wrap.cf .subsubsub .current {
     font-weight: 600;
     color: var(--cf-primary);
 }

@@ -15,7 +15,7 @@ class Frontend
         $submission_limit = ( isset( $form->settings['submission_limit'] ) && is_numeric ( $form->settings['submission_limit'] ) ? $form->settings['submission_limit'] : 0 );
 
         if ( empty( $_GET['cf_preview_form'] ) && ( $submission_limit > 0 && cf_count_form_submissions( $form->id ) >= $submission_limit ) ) {
-            $html = '<div class="hf-message hf-message-warning hf-message-submission-limit">' . $form->messages['submission_limit_reached'] . '</div>';
+            $html = '<div class="cf-message cf-message-warning cf-message-submission-limit">' . $form->messages['submission_limit_reached'] . '</div>';
         }
 
 		return $html;

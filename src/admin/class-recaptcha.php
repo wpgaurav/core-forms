@@ -266,7 +266,7 @@ class Recaptcha {
         }
         ?>
         <tr valign="top">
-            <th scope="row" colspan="2" class="hf-settings-header"><?php echo __( 'Google reCAPTCHA v3', 'core-forms' ); ?></th>
+            <th scope="row" colspan="2" class="cf-settings-header"><?php echo __( 'Google reCAPTCHA v3', 'core-forms' ); ?></th>
         </tr>
         
         <tr valign="top">
@@ -296,7 +296,7 @@ class Recaptcha {
             return;
         }
         
-        echo '<div class="notice notice-success" data-notice="hf-recaptcha">';
+        echo '<div class="notice notice-success" data-notice="cf-recaptcha">';
         echo '<p><span class="dashicons dashicons-shield" style="color:#46b450;"></span> <strong>' . __( 'Google reCAPTCHA v3 is enabled on this form.', 'core-forms' ) . '</strong> ';
         echo __( 'Submissions will be automatically protected from spam and abuse.', 'core-forms' );
         echo ' <a href="' . admin_url( 'admin.php?page=core-forms-settings' ) . '">' . __( 'View settings', 'core-forms' ) . '</a>.</p>';

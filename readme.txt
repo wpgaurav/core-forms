@@ -1,11 +1,11 @@
 === Core Forms ===
-Contributors: developer
-Donate link: https://developer.developer
+Contributors: gauravtiwari
+Donate link: https://gauravtiwari.org
 Tags: forms, contact form, custom forms, form builder, html form
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.0.19
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

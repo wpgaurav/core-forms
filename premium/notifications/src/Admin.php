@@ -119,7 +119,7 @@ class Admin
         $notifications = get_notifications();
         ?>
         <style type="text/css">
-            .hf-notification-badge {
+            .cf-notification-badge {
                 display: inline-block;
                 vertical-align: top;
                 margin: 1px 0 0 2px;
@@ -135,14 +135,14 @@ class Admin
                 z-index: 26;
             }
 
-            .hf-notification-badge:hover,
-            .hf-notification-badge:focus {
+            .cf-notification-badge:hover,
+            .cf-notification-badge:focus {
                 color: #fff;
                 cursor: pointer;
                 background-color: #e06137;
             }
 
-            tr.hf-unseen {
+            tr.cf-unseen {
                 background-color: rgba(202, 74, 31, 0.2) !important;
             }
         </style>
@@ -159,7 +159,7 @@ class Admin
                     if (!notifications.hasOwnProperty(form_id)) {
                         continue;
                     }
-                    var row = document.getElementById('hf-forms-item-' + form_id);
+                    var row = document.getElementById('cf-forms-item-' + form_id);
                     if (!row || notifications[form_id].length < 1) {
                         continue;
                     }
@@ -169,7 +169,7 @@ class Admin
                     var notificationLink = document.createElement('a');
                     var submissionsLink = rowActions.querySelector('.submissions a');
                     var submissions = parseInt(notifications[form_id].length);
-                    notificationLink.className = 'hf-notification-badge';
+                    notificationLink.className = 'cf-notification-badge';
                     notificationLink.innerText = submissions + ' New Submission' + (submissions > 1 ? 's' : '');
                     notificationLink.href = submissionsLink.href;
                     cell.insertBefore(notificationLink, rowActions);
@@ -181,9 +181,9 @@ class Admin
                 var form_id = <?php echo absint($_GET['form_id']); ?>;
                 if (notifications[form_id]) {
                     [].forEach.call(notifications[form_id], function (submissionId) {
-                        var row = document.getElementById('hf-submissions-item-' + submissionId);
+                        var row = document.getElementById('cf-submissions-item-' + submissionId);
                         if (row) {
-                            row.className = row.className + ' hf-unseen';
+                            row.className = row.className + ' cf-unseen';
                         }
                     });
                 }

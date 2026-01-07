@@ -40,7 +40,7 @@ class Email extends Action {
 
        <p class="description">
        <?php _e( 'Send out an email notification whenever this form is successfully submitted.', 'core-forms' ); ?>
-       <a target="_blank" tabindex="-1" class="core-forms-help" href="https://developer.developer/core-forms/sending-email-notifications/"><span class="dashicons dashicons-editor-help"></span></a>
+       <a target="_blank" tabindex="-1" class="core-forms-help" href="https://gauravtiwari.org/core-forms/sending-email-notifications/"><span class="dashicons dashicons-editor-help"></span></a>
        </p>
 
        <table class="form-table">

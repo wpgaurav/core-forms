@@ -13,7 +13,7 @@ class Frontend
     
     public function require_user_logged_in( $html, $form ) {
         if ( empty( $_GET['cf_preview_form'] ) && ( isset( $form->settings['require_user_logged_in'] ) && $form->settings['require_user_logged_in'] && !is_user_logged_in() ) ) {
-            $html = '<div class="hf-message hf-message-warning hf-message-require-user-logged-in">' . $form->messages['require_user_logged_in'] . '</div>';
+            $html = '<div class="cf-message cf-message-warning cf-message-require-user-logged-in">' . $form->messages['require_user_logged_in'] . '</div>';
         }
 
 		return $html;

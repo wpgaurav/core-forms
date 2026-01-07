@@ -33,6 +33,10 @@ class Admin {
 		add_action( 'wp_ajax_cf_dismiss_recaptcha_notice', array( $this, 'dismiss_recaptcha_notice' ) );
 		add_action( 'cf_admin_action_save_form', array( $this, 'process_save_form' ) );
 		add_action( 'cf_admin_action_bulk_delete_submissions', array( $this, 'process_bulk_delete_submissions' ) );
+		add_action( 'cf_admin_action_unmark_spam', array( $this, 'process_unmark_spam' ) );
+		add_action( 'cf_admin_action_delete_spam', array( $this, 'process_delete_spam' ) );
+		add_action( 'cf_admin_action_bulk_delete_spam', array( $this, 'process_bulk_delete_spam' ) );
+		add_action( 'cf_admin_action_bulk_unmark_spam', array( $this, 'process_bulk_unmark_spam' ) );
 
 		add_action( 'cf_admin_output_form_tab_fields', array( $this, 'tab_fields' ) );
 		add_action( 'cf_admin_output_form_tab_messages', array( $this, 'tab_messages' ) );
@@ -172,6 +176,35 @@ class Admin {
 				'wrapper_tag' => empty( $settings['wrapper_tag'] ) ? 'p' : $settings['wrapper_tag'],
 			)
 		);
+
+		// Enqueue WordPress code editor for form markup editing
+		if ( ! empty( $_GET['form_id'] ) || $_GET['page'] === 'core-forms-add-form' ) {
+			$settings = wp_enqueue_code_editor( array(
+				'type' => 'text/html',
+				'codemirror' => array(
+					'mode' => 'htmlmixed',
+					'lineNumbers' => true,
+					'lineWrapping' => true,
+					'indentUnit' => 2,
+					'tabSize' => 2,
+					'indentWithTabs' => true,
+				),
+			) );
+
+			if ( $settings !== false ) {
+				wp_add_inline_script(
+					'code-editor',
+					sprintf(
+						'jQuery(function() {
+							if (jQuery("#cf-form-editor").length) {
+								wp.codeEditor.initialize("cf-form-editor", %s);
+							}
+						});',
+						wp_json_encode( $settings )
+					)
+				);
+			}
+		}
 	}
 
 	public function menu() {
@@ -222,6 +255,17 @@ class Admin {
 			array(
 				$this,
 				'page_settings',
+			)
+		);
+		add_submenu_page(
+			'core-forms',
+			__( 'Spam', 'core-forms' ),
+			__( 'Spam', 'core-forms' ),
+			$capability,
+			'core-forms-spam',
+			array(
+				$this,
+				'page_spam',
 			)
 		);
 		// Premium features are now integrated - no need for upsell page
@@ -283,6 +327,10 @@ class Admin {
 
 	public function page_premium() {
 		require dirname( $this->plugin_file ) . '/views/page-premium.php';
+	}
+
+	public function page_spam() {
+		require dirname( $this->plugin_file ) . '/views/page-spam.php';
 	}
 
 	public function page_edit_form() {
@@ -509,6 +557,127 @@ class Admin {
 
 		$args[] = '_cf_%%';
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE post_id IN ( {$placeholders}  ) AND meta_key LIKE %s;", $args ) );
+	}
+
+	public function process_unmark_spam() {
+		global $wpdb;
+
+		if ( empty( $_GET['submission_id'] ) || empty( $_GET['form_id'] ) ) {
+			return;
+		}
+
+		$submission_id = (int) $_GET['submission_id'];
+		$form_id = (int) $_GET['form_id'];
+
+		// Unmark as spam
+		$wpdb->update(
+			$wpdb->prefix . 'cf_submissions',
+			array( 'is_spam' => 0 ),
+			array( 'id' => $submission_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+
+		// Get the submission to run actions
+		$submission = cf_get_form_submission( $submission_id );
+		if ( $submission ) {
+			try {
+				$form = cf_get_form( $form_id );
+
+				// Run form success actions
+				do_action( 'cf_form_success', $submission, $form );
+
+				// Run configured actions
+				if ( ! empty( $form->settings['actions'] ) ) {
+					foreach ( $form->settings['actions'] as $action_settings ) {
+						do_action( sprintf( 'cf_process_form_action_%s', $action_settings['type'] ), $action_settings, $submission, $form );
+					}
+				}
+			} catch ( \Exception $e ) {
+				// Form not found, skip action processing
+			}
+		}
+
+		// Redirect back with success message
+		wp_safe_redirect( add_query_arg( array( 'page' => 'core-forms-spam', 'unmarked' => '1' ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	public function process_delete_spam() {
+		global $wpdb;
+
+		if ( empty( $_GET['submission_id'] ) ) {
+			return;
+		}
+
+		$submission_id = (int) $_GET['submission_id'];
+		$table = $wpdb->prefix . 'cf_submissions';
+
+		$wpdb->delete( $table, array( 'id' => $submission_id ), array( '%d' ) );
+
+		// Redirect back with success message
+		wp_safe_redirect( add_query_arg( array( 'page' => 'core-forms-spam', 'deleted' => '1' ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	public function process_bulk_delete_spam() {
+		global $wpdb;
+
+		if ( empty( $_POST['id'] ) ) {
+			return;
+		}
+
+		$args         = array_map( 'intval', $_POST['id'] );
+		$table        = $wpdb->prefix . 'cf_submissions';
+		$placeholders = rtrim( str_repeat( '%d,', count( $args ) ), ',' );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE id IN( {$placeholders} );", $args ) );
+
+		// Redirect back with success message
+		wp_safe_redirect( add_query_arg( array( 'page' => 'core-forms-spam', 'bulk_deleted' => count( $args ) ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	public function process_bulk_unmark_spam() {
+		global $wpdb;
+
+		if ( empty( $_POST['id'] ) ) {
+			return;
+		}
+
+		$args         = array_map( 'intval', $_POST['id'] );
+		$table        = $wpdb->prefix . 'cf_submissions';
+		$placeholders = rtrim( str_repeat( '%d,', count( $args ) ), ',' );
+
+		// Unmark as spam
+		$wpdb->query( $wpdb->prepare( "UPDATE {$table} SET is_spam = 0 WHERE id IN( {$placeholders} );", $args ) );
+
+		// Get submissions and run actions for each
+		$submissions = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE id IN( {$placeholders} );", $args ) );
+
+		foreach ( $submissions as $submission_obj ) {
+			$submission = \Core_Forms\Submission::from_object( $submission_obj );
+
+			try {
+				$form = cf_get_form( $submission->form_id );
+
+				// Run form success actions
+				do_action( 'cf_form_success', $submission, $form );
+
+				// Run configured actions
+				if ( ! empty( $form->settings['actions'] ) ) {
+					foreach ( $form->settings['actions'] as $action_settings ) {
+						do_action( sprintf( 'cf_process_form_action_%s', $action_settings['type'] ), $action_settings, $submission, $form );
+					}
+				}
+			} catch ( \Exception $e ) {
+				// Form not found, skip action processing for this submission
+				continue;
+			}
+		}
+
+		// Redirect back with success message
+		wp_safe_redirect( add_query_arg( array( 'page' => 'core-forms-spam', 'bulk_unmarked' => count( $args ) ), admin_url( 'admin.php' ) ) );
+		exit;
 	}
 
 	private function get_default_form_content() {

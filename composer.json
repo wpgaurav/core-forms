@@ -1,13 +1,13 @@
 {
-    "name": "developer-developer/core-forms",
+    "name": "gauravtiwari/core-forms",
     "description": "A simpler, faster, and smarter WordPress forms plugin with premium features included.",
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "authors": [
         {
-            "name": "developer developer",
-            "email": "developer@developer.developer",
-            "homepage": "https://developer.developer"
+            "name": "Gaurav Tiwari",
+            "email": "hello@gauravtiwari.org",
+            "homepage": "https://gauravtiwari.org"
         }
     ],
     "require": {

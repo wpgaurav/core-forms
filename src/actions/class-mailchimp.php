@@ -44,7 +44,7 @@ class MailChimp extends Action {
 
        <p class="description">
        <?php _e( 'Add an email address to the assigned Mailchimp list when this form is sucessfully submitted.', 'core-forms' ); ?>
-       <a target="_blank" tabindex="-1" class="core-forms-help" href="https://developer.developer/core-forms/mailchimp-integration/"><span class="dashicons dashicons-editor-help"></span></a>
+       <a target="_blank" tabindex="-1" class="core-forms-help" href="https://gauravtiwari.org/core-forms/mailchimp-integration/"><span class="dashicons dashicons-editor-help"></span></a>
        </p>
 
        <table class="form-table">
