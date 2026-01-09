@@ -3,7 +3,7 @@
 Plugin Name: Core Forms
 Plugin URI: https://gauravtiwari.org/plugins/core-forms
 Description: A simpler, faster, and smarter WordPress forms plugin with premium features included.
-Version: 2.0.19
+Version: 3.0.0
 Author: Gaurav Tiwari
 Author URI: https://gauravtiwari.org
 License: GPL v3
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'CORE_FORMS_VERSION', '2.0.19' );
+define( 'CORE_FORMS_VERSION', '3.0.0' );
 define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

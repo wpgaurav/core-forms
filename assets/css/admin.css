@@ -124,25 +124,52 @@
    Form Builder - Mode Toggle
    ============================================ */
 .cf-builder-toolbar {
+    display: flex;
+    justify-content: flex-end;
     margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #c3c4c7;
 }
 
 .cf-mode-toggle {
-    display: flex;
-    gap: 4px;
+    display: inline-flex;
+    gap: 0;
+    background: #f0f0f1;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.cf-mode-btn {
+    border-radius: 3px;
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #50575e;
+}
+
+.cf-mode-btn:hover {
+    color: #1d2327;
+}
+
+.cf-mode-btn:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 .cf-mode-btn.active {
-    background: #2271b1;
-    color: #fff;
-    border-color: #2271b1;
+    background: #fff;
+    color: #1d2327;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
 }
 
 .cf-mode-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
     vertical-align: text-bottom;
+    margin-right: 4px;
 }
 
 /* Builder modes */
@@ -152,6 +179,30 @@
 
 .cf-builder-mode.active {
     display: block;
+}
+
+/* Code Editor Mode */
+#cf-code-editor {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 20px;
+}
+
+#cf-code-editor h4 {
+    margin: 0 0 12px;
+}
+
+#cf-code-editor .cf-row {
+    gap: 24px;
+}
+
+#cf-form-editor {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px;
+    border: 1px solid #c3c4c7;
+    background: #f6f7f7;
 }
 
 /* Builder layout */
@@ -188,6 +239,12 @@
 .cf-field-type:hover {
     background: #fff;
     border-color: #2271b1;
+}
+
+.cf-field-type:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: -2px;
+    background: #fff;
 }
 
 .cf-field-type .dashicons {
@@ -242,6 +299,15 @@
 
 .cf-canvas-field.dragging {
     opacity: 0.5;
+}
+
+.cf-canvas-field:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: -2px;
+}
+
+.cf-canvas-field:focus-within {
+    border-color: #2271b1;
 }
 
 .cf-field-header {
