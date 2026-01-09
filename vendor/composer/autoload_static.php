@@ -7,7 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit4c9280af2fa7b60b352430cf33ad5523
 {
     public static $files = array (
-        'ea7d0c6f2752fd68562eaf502a2b65b3' => __DIR__ . '/../..' . '/src/functions.php',
+        '5f400b02bfa178853703772327077459' => __DIR__ . '/../..' . '/src/functions.php',
     );
 
     public static $classMap = array (
@@ -17,14 +17,24 @@ class ComposerStaticInit4c9280af2fa7b60b352430cf33ad5523
         'Core_Forms\\Actions\\MailChimp' => __DIR__ . '/../..' . '/src/actions/class-mailchimp.php',
         'Core_Forms\\Admin\\Admin' => __DIR__ . '/../..' . '/src/admin/class-admin.php',
         'Core_Forms\\Admin\\Akismet' => __DIR__ . '/../..' . '/src/admin/class-akismet.php',
+        'Core_Forms\\Admin\\AllSubmissions' => __DIR__ . '/../..' . '/src/admin/class-all-submissions.php',
+        'Core_Forms\\Admin\\AllSubmissionsTable' => __DIR__ . '/../..' . '/src/admin/class-all-submissions-table.php',
         'Core_Forms\\Admin\\GDPR' => __DIR__ . '/../..' . '/src/admin/class-gdpr.php',
-        'Core_Forms\\Admin\\MathCaptcha' => __DIR__ . '/../..' . '/src/admin/class-math-captcha.php',
         'Core_Forms\\Admin\\Hcaptcha' => __DIR__ . '/../..' . '/src/admin/class-hcaptcha.php',
+        'Core_Forms\\Admin\\MathCaptcha' => __DIR__ . '/../..' . '/src/admin/class-math-captcha.php',
         'Core_Forms\\Admin\\Migrations' => __DIR__ . '/../..' . '/src/admin/class-migrations.php',
         'Core_Forms\\Admin\\Recaptcha' => __DIR__ . '/../..' . '/src/admin/class-recaptcha.php',
+        'Core_Forms\\Admin\\SubmissionEditor' => __DIR__ . '/../..' . '/src/admin/class-submission-editor.php',
+        'Core_Forms\\Admin\\SubmissionReply' => __DIR__ . '/../..' . '/src/admin/class-submission-reply.php',
         'Core_Forms\\Admin\\Table' => __DIR__ . '/../..' . '/src/admin/class-table.php',
+        'Core_Forms\\Admin\\Turnstile' => __DIR__ . '/../..' . '/src/admin/class-turnstile.php',
         'Core_Forms\\Form' => __DIR__ . '/../..' . '/src/class-form.php',
         'Core_Forms\\Forms' => __DIR__ . '/../..' . '/src/class-forms.php',
+        'Core_Forms\\Polls\\Poll' => __DIR__ . '/../..' . '/src/polls/class-poll.php',
+        'Core_Forms\\Polls\\PollAdmin' => __DIR__ . '/../..' . '/src/polls/class-poll-admin.php',
+        'Core_Forms\\Polls\\PollFrontend' => __DIR__ . '/../..' . '/src/polls/class-poll-frontend.php',
+        'Core_Forms\\Polls\\Vote' => __DIR__ . '/../..' . '/src/polls/class-vote.php',
+        'Core_Forms\\Reply' => __DIR__ . '/../..' . '/src/class-reply.php',
         'Core_Forms\\Submission' => __DIR__ . '/../..' . '/src/class-submission.php',
         'Core_Forms\\TagReplacers' => __DIR__ . '/../..' . '/src/class-tag-replacers.php',
     );

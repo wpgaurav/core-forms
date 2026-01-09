@@ -167,13 +167,23 @@ class Admin {
 
 		wp_enqueue_style( 'core-forms-admin', plugins_url( 'assets/css/admin.css', $this->plugin_file ), array(), CORE_FORMS_VERSION );
 
+		// Load admin UI utilities (modals, toasts, etc.) on all Core Forms pages
+		wp_enqueue_script( 'core-forms-admin-ui', plugins_url( 'assets/js/admin-ui.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
+		wp_localize_script(
+			'core-forms-admin-ui',
+			'cf_admin_vars',
+			array(
+				'nonce' => wp_create_nonce( 'cf_admin_action' ),
+			)
+		);
+
 		// Only load admin.js on pages that need it (pages with tabs, form builder, etc.)
 		// Exclude simple listing pages like spam management
 		$pages_needing_admin_js = array( 'core-forms', 'core-forms-add-form', 'core-forms-settings' );
 		$needs_admin_js = in_array( $current_page, $pages_needing_admin_js, true ) || ! empty( $_GET['form_id'] );
 
 		if ( $needs_admin_js ) {
-			wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
+			wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array( 'core-forms-admin-ui' ), CORE_FORMS_VERSION, true );
 			wp_localize_script(
 				'core-forms-admin',
 				'cf_options',

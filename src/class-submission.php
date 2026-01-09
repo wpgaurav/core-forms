@@ -11,6 +11,7 @@ class Submission {
     public $referer_url;
     public $is_spam;
     public $submitted_at;
+    public $modified_at;
 
     public static function from_object( $object ) {
         $submission               = new Submission();
@@ -22,6 +23,7 @@ class Submission {
         $submission->referer_url  = isset( $object->referer_url ) ? $object->referer_url : '';
         $submission->is_spam      = isset( $object->is_spam ) ? (bool) $object->is_spam : false;
         $submission->submitted_at = isset( $object->submitted_at ) ? $object->submitted_at : '';
+        $submission->modified_at  = isset( $object->modified_at ) ? $object->modified_at : null;
         return $submission;
     }
 }

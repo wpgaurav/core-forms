@@ -60,6 +60,15 @@ function _bootstrap() {
         if ( ! \defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
             $admin = new Admin\Admin( __FILE__ );
             $admin->hook();
+
+            $all_submissions = new Admin\AllSubmissions( __FILE__ );
+            $all_submissions->hook();
+
+            $submission_editor = new Admin\SubmissionEditor();
+            $submission_editor->hook();
+
+            $submission_reply = new Admin\SubmissionReply();
+            $submission_reply->hook();
         }
 
         $gdpr = new Admin\GDPR();
@@ -77,6 +86,12 @@ function _bootstrap() {
         $recaptcha->hook();
     }
 
+    // Initialize Cloudflare Turnstile (privacy-focused CAPTCHA alternative)
+    if ( \class_exists( 'Core_Forms\\Admin\\Turnstile' ) ) {
+        $turnstile = new Admin\Turnstile();
+        $turnstile->hook();
+    }
+
     // Initialize Akismet spam filtering (if Akismet plugin is active)
     if ( \class_exists( 'Akismet' ) ) {
         $akismet = new Admin\Akismet();
@@ -87,9 +102,16 @@ function _bootstrap() {
     $math_captcha = new Admin\MathCaptcha();
     $math_captcha->hook();
 
+    // Initialize Polls feature
+    $poll_admin = new Polls\PollAdmin( __FILE__ );
+    $poll_admin->hook();
+
+    $poll_frontend = new Polls\PollFrontend( __FILE__ );
+    $poll_frontend->hook();
+
     // Load premium features (now integrated)
     _load_premium_features();
-    
+
     // Initialize form actions
     _cf_actions();
 }

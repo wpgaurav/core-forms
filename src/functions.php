@@ -207,6 +207,11 @@ function cf_get_settings() {
             'site_key'   => '',
             'secret_key' => '',
         ),
+        'cloudflare_turnstile' => array(
+            'site_key'   => '',
+            'secret_key' => '',
+        ),
+        'reply_from_email' => '',
     );
 
     $settings = get_option( 'cf_settings', null );
@@ -222,9 +227,16 @@ function cf_get_settings() {
     
     // Ensure nested arrays are properly merged
     if ( isset( $default_settings['google_recaptcha'] ) ) {
-        $settings['google_recaptcha'] = array_merge( 
-            $default_settings['google_recaptcha'], 
-            isset( $settings['google_recaptcha'] ) ? $settings['google_recaptcha'] : array() 
+        $settings['google_recaptcha'] = array_merge(
+            $default_settings['google_recaptcha'],
+            isset( $settings['google_recaptcha'] ) ? $settings['google_recaptcha'] : array()
+        );
+    }
+
+    if ( isset( $default_settings['cloudflare_turnstile'] ) ) {
+        $settings['cloudflare_turnstile'] = array_merge(
+            $default_settings['cloudflare_turnstile'],
+            isset( $settings['cloudflare_turnstile'] ) ? $settings['cloudflare_turnstile'] : array()
         );
     }
 
@@ -593,4 +605,291 @@ function _cf_on_wp_insert_site( \WP_Site $site ) {
     switch_to_blog( (int) $site->blog_id );
     _cf_create_submissions_table();
     restore_current_blog();
+}
+
+/**
+ * Get all submissions across all forms
+ *
+ * @param array $args Query arguments
+ * @return Submission[]
+ */
+function cf_get_all_submissions( array $args = array() ) {
+    $defaults = array(
+        'form_id'   => 0,
+        'search'    => '',
+        'is_spam'   => null,
+        'date_from' => '',
+        'date_to'   => '',
+        'offset'    => 0,
+        'limit'     => 50,
+        'orderby'   => 'submitted_at',
+        'order'     => 'DESC',
+    );
+    $args = array_merge( $defaults, $args );
+
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_submissions';
+
+    $where_clauses = array( '1=1' );
+    $prepare_values = array();
+
+    if ( ! empty( $args['form_id'] ) ) {
+        $where_clauses[] = 's.form_id = %d';
+        $prepare_values[] = (int) $args['form_id'];
+    }
+
+    if ( $args['is_spam'] !== null ) {
+        $where_clauses[] = 's.is_spam = %d';
+        $prepare_values[] = $args['is_spam'] ? 1 : 0;
+    }
+
+    if ( ! empty( $args['search'] ) ) {
+        $where_clauses[] = 's.data LIKE %s';
+        $prepare_values[] = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+    }
+
+    if ( ! empty( $args['date_from'] ) ) {
+        $where_clauses[] = 's.submitted_at >= %s';
+        $prepare_values[] = $args['date_from'] . ' 00:00:00';
+    }
+
+    if ( ! empty( $args['date_to'] ) ) {
+        $where_clauses[] = 's.submitted_at <= %s';
+        $prepare_values[] = $args['date_to'] . ' 23:59:59';
+    }
+
+    $allowed_orderby = array( 'submitted_at', 'form_id', 'id' );
+    $orderby = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'submitted_at';
+    $order = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
+
+    $where = implode( ' AND ', $where_clauses );
+    $prepare_values[] = (int) $args['offset'];
+    $prepare_values[] = (int) $args['limit'];
+
+    $sql = "SELECT s.* FROM {$table} s WHERE {$where} ORDER BY s.{$orderby} {$order} LIMIT %d, %d";
+    $results = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_values ), OBJECT_K );
+
+    $submissions = array();
+    foreach ( $results as $key => $object ) {
+        $submissions[ $key ] = Submission::from_object( $object );
+    }
+
+    return $submissions;
+}
+
+/**
+ * Count all submissions across all forms
+ *
+ * @param array $args Query arguments
+ * @return int
+ */
+function cf_count_all_submissions( array $args = array() ) {
+    $defaults = array(
+        'form_id'   => 0,
+        'search'    => '',
+        'is_spam'   => null,
+        'date_from' => '',
+        'date_to'   => '',
+    );
+    $args = array_merge( $defaults, $args );
+
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_submissions';
+
+    $where_clauses = array( '1=1' );
+    $prepare_values = array();
+
+    if ( ! empty( $args['form_id'] ) ) {
+        $where_clauses[] = 's.form_id = %d';
+        $prepare_values[] = (int) $args['form_id'];
+    }
+
+    if ( $args['is_spam'] !== null ) {
+        $where_clauses[] = 's.is_spam = %d';
+        $prepare_values[] = $args['is_spam'] ? 1 : 0;
+    }
+
+    if ( ! empty( $args['search'] ) ) {
+        $where_clauses[] = 's.data LIKE %s';
+        $prepare_values[] = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+    }
+
+    if ( ! empty( $args['date_from'] ) ) {
+        $where_clauses[] = 's.submitted_at >= %s';
+        $prepare_values[] = $args['date_from'] . ' 00:00:00';
+    }
+
+    if ( ! empty( $args['date_to'] ) ) {
+        $where_clauses[] = 's.submitted_at <= %s';
+        $prepare_values[] = $args['date_to'] . ' 23:59:59';
+    }
+
+    $where = implode( ' AND ', $where_clauses );
+
+    if ( ! empty( $prepare_values ) ) {
+        $result = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} s WHERE {$where}", $prepare_values ) );
+    } else {
+        $result = $wpdb->get_var( "SELECT COUNT(*) FROM {$table} s WHERE {$where}" );
+    }
+
+    return (int) $result;
+}
+
+/**
+ * Search submissions by data content
+ *
+ * @param string $search Search term
+ * @param int $form_id Optional form ID to limit search
+ * @param array $args Additional query arguments
+ * @return Submission[]
+ */
+function cf_search_submissions( $search, $form_id = 0, array $args = array() ) {
+    $args['search'] = $search;
+    if ( $form_id > 0 ) {
+        $args['form_id'] = $form_id;
+    }
+    return cf_get_all_submissions( $args );
+}
+
+/**
+ * Get replies for a submission
+ *
+ * @param int $submission_id Submission ID
+ * @return Reply[]
+ */
+function cf_get_submission_replies( $submission_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_submission_replies';
+
+    $results = $wpdb->get_results(
+        $wpdb->prepare( "SELECT * FROM {$table} WHERE submission_id = %d ORDER BY sent_at DESC", $submission_id )
+    );
+
+    $replies = array();
+    foreach ( $results as $object ) {
+        $replies[] = Reply::from_object( $object );
+    }
+
+    return $replies;
+}
+
+/**
+ * Get count of replies for a submission
+ *
+ * @param int $submission_id Submission ID
+ * @return int
+ */
+function cf_count_submission_replies( $submission_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_submission_replies';
+
+    return (int) $wpdb->get_var(
+        $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE submission_id = %d", $submission_id )
+    );
+}
+
+/**
+ * Get default reply sender email
+ *
+ * @return string
+ */
+function cf_get_default_reply_email() {
+    $settings = cf_get_settings();
+    if ( ! empty( $settings['reply_from_email'] ) ) {
+        return $settings['reply_from_email'];
+    }
+    return get_option( 'admin_email' );
+}
+
+/**
+ * Get a poll by ID
+ *
+ * @param int $poll_id Poll ID
+ * @return Polls\Poll|null
+ */
+function cf_get_poll( $poll_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_polls';
+
+    $object = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $poll_id ) );
+
+    if ( ! $object ) {
+        return null;
+    }
+
+    return Polls\Poll::from_object( $object );
+}
+
+/**
+ * Get a poll by post ID
+ *
+ * @param int $post_id Post ID
+ * @return Polls\Poll|null
+ */
+function cf_get_poll_by_post_id( $post_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_polls';
+
+    $object = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE post_id = %d", $post_id ) );
+
+    if ( ! $object ) {
+        return null;
+    }
+
+    return Polls\Poll::from_object( $object );
+}
+
+/**
+ * Get a poll by slug
+ *
+ * @param string $slug Post slug
+ * @return Polls\Poll|null
+ */
+function cf_get_poll_by_slug( $slug ) {
+    $post = get_page_by_path( $slug, OBJECT, 'core-poll' );
+
+    if ( ! $post ) {
+        return null;
+    }
+
+    return cf_get_poll_by_post_id( $post->ID );
+}
+
+/**
+ * Get poll results
+ *
+ * @param int $poll_id Poll ID
+ * @return array Associative array of option_index => vote_count
+ */
+function cf_get_poll_results( $poll_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_poll_votes';
+
+    $results = $wpdb->get_results( $wpdb->prepare(
+        "SELECT option_index, COUNT(*) as votes FROM {$table} WHERE poll_id = %d GROUP BY option_index",
+        $poll_id
+    ) );
+
+    $counts = array();
+    foreach ( $results as $row ) {
+        $counts[ (int) $row->option_index ] = (int) $row->votes;
+    }
+
+    return $counts;
+}
+
+/**
+ * Get total votes for a poll
+ *
+ * @param int $poll_id Poll ID
+ * @return int
+ */
+function cf_get_poll_total_votes( $poll_id ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_poll_votes';
+
+    return (int) $wpdb->get_var( $wpdb->prepare(
+        "SELECT COUNT(*) FROM {$table} WHERE poll_id = %d",
+        $poll_id
+    ) );
 }
