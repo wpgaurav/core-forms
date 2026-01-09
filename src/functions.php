@@ -76,6 +76,8 @@ function cf_get_form( $form_id_or_slug ) {
         'redirect_url'       => '',
         'required_fields'    => '',
         'email_fields'       => '',
+        'custom_css'         => '',
+        'custom_js'          => '',
     );
     $default_settings = apply_filters( 'cf_form_default_settings', $default_settings );
     $settings         = array();

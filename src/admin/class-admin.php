@@ -223,6 +223,9 @@ class Admin {
 					)
 				);
 			}
+
+			// Enqueue form builder for drag-and-drop functionality
+			wp_enqueue_script( 'core-forms-builder', plugins_url( 'assets/js/form-builder.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
 		}
 	}
 

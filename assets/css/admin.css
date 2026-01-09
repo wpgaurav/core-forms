@@ -121,10 +121,236 @@
 }
 
 /* ============================================
-   Field Builder - Hidden (use code editor instead)
+   Form Builder - Mode Toggle
    ============================================ */
+.cf-builder-toolbar {
+    margin-bottom: 16px;
+}
+
+.cf-mode-toggle {
+    display: flex;
+    gap: 4px;
+}
+
+.cf-mode-btn.active {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+.cf-mode-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+}
+
+/* Builder modes */
+.cf-builder-mode {
+    display: none;
+}
+
+.cf-builder-mode.active {
+    display: block;
+}
+
+/* Builder layout */
+.cf-builder-layout {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Field Palette */
+.cf-field-palette {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.cf-field-palette h4 {
+    margin: 0 0 12px;
+}
+
+.cf-field-types {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cf-field-type {
+    padding: 8px 12px;
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    cursor: grab;
+    font-size: 13px;
+}
+
+.cf-field-type:hover {
+    background: #fff;
+    border-color: #2271b1;
+}
+
+.cf-field-type .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    color: #646970;
+    vertical-align: text-bottom;
+}
+
+/* Form Canvas */
+.cf-form-canvas {
+    flex: 1;
+    min-width: 0;
+}
+
+.cf-form-canvas h4 {
+    margin: 0 0 12px;
+}
+
+.cf-field-count {
+    color: #646970;
+    font-weight: normal;
+}
+
+.cf-canvas-dropzone {
+    min-height: 300px;
+    border: 2px dashed #c3c4c7;
+    background: #f6f7f7;
+    padding: 16px;
+}
+
+.cf-canvas-dropzone.cf-drag-over {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.cf-canvas-empty {
+    color: #646970;
+    text-align: center;
+    padding: 40px 20px;
+    margin: 0;
+}
+
+/* Canvas field items */
+.cf-canvas-field {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    margin-bottom: 8px;
+}
+
+.cf-canvas-field.dragging {
+    opacity: 0.5;
+}
+
+.cf-field-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #c3c4c7;
+    gap: 8px;
+}
+
+.cf-field-drag {
+    cursor: grab;
+    color: #646970;
+}
+
+.cf-field-label {
+    flex: 1;
+    font-weight: 500;
+}
+
+.cf-field-type-badge {
+    font-size: 11px;
+    color: #646970;
+    background: #fff;
+    padding: 2px 6px;
+    border: 1px solid #c3c4c7;
+}
+
+.cf-field-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.cf-field-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    color: #646970;
+}
+
+.cf-field-actions button:hover {
+    color: #2271b1;
+}
+
+.cf-field-actions .cf-field-remove:hover {
+    color: #d63638;
+}
+
+/* Field settings panel */
+.cf-field-settings {
+    padding: 16px;
+}
+
+.cf-field-settings .form-table {
+    margin: 0;
+}
+
+.cf-field-settings .form-table th {
+    width: 120px;
+    padding: 8px 10px 8px 0;
+}
+
+.cf-field-settings .form-table td {
+    padding: 8px 0;
+}
+
+/* Custom CSS/JS */
+.cf-custom-code {
+    margin-top: 20px;
+}
+
+.cf-custom-code details {
+    margin-bottom: 12px;
+}
+
+.cf-custom-code summary {
+    cursor: pointer;
+    font-weight: 500;
+    padding: 8px 0;
+}
+
+.cf-custom-code textarea {
+    width: 100%;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Old field builder - hide */
 #cf-field-builder {
     display: none;
+}
+
+@media (max-width: 782px) {
+    .cf-builder-layout {
+        flex-direction: column;
+    }
+    .cf-field-palette {
+        width: 100%;
+    }
+    .cf-field-types {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .cf-field-type {
+        flex: 1 1 45%;
+    }
 }
 
 /* ============================================

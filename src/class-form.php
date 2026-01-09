@@ -71,6 +71,16 @@ class Form {
         $html .= '</div>'; // end field wrap
         $html .= '</form>';
 
+        // Output custom CSS if set
+        if ( ! empty( $this->settings['custom_css'] ) ) {
+            $html .= sprintf( '<style>.cf-form-%d { %s }</style>', $this->ID, wp_strip_all_tags( $this->settings['custom_css'] ) );
+        }
+
+        // Output custom JS if set
+        if ( ! empty( $this->settings['custom_js'] ) ) {
+            $html .= sprintf( '<script>(function(){var form=document.querySelector(".cf-form-%d");if(form){%s}})()</script>', $this->ID, $this->settings['custom_js'] );
+        }
+
         // ensure JS scripts are enqueued whenever this function is called
         if ( function_exists( 'wp_enqueue_script' ) ) {
             wp_enqueue_script( 'core-forms' );
