@@ -37,7 +37,7 @@
             email: { label: 'Email', placeholder: 'your@email.com' },
             textarea: { label: 'Message', placeholder: '', rows: '5' },
             select: { label: 'Select', options: 'Option 1\nOption 2\nOption 3', multiple: false },
-            checkbox: { label: 'Checkbox', options: 'Option 1' },
+            checkbox: { label: 'Checkbox', options: 'I agree', multiple: false },
             radio: { label: 'Radio', options: 'Option 1\nOption 2' },
             number: { label: 'Number', placeholder: '', min: '', max: '', step: '' },
             tel: { label: 'Phone', placeholder: '' },
@@ -54,7 +54,7 @@
             email: ['label', 'name', 'placeholder', 'required', 'class'],
             textarea: ['label', 'name', 'placeholder', 'rows', 'required', 'class'],
             select: ['label', 'name', 'options', 'multiple', 'required', 'class'],
-            checkbox: ['label', 'name', 'options', 'required', 'class'],
+            checkbox: ['label', 'name', 'options', 'multiple', 'required', 'class'],
             radio: ['label', 'name', 'options', 'required', 'class'],
             number: ['label', 'name', 'placeholder', 'value', 'min', 'max', 'step', 'required', 'class'],
             tel: ['label', 'name', 'placeholder', 'required', 'class'],
@@ -586,29 +586,50 @@
                         break;
 
                     case 'checkbox':
-                        fieldHtml = '<fieldset>\n';
-                        fieldHtml += '  <legend>' + esc(label);
-                        if (isRequired) fieldHtml += ' <span aria-hidden="true">*</span>';
-                        fieldHtml += '</legend>\n';
-                        var checkboxIndex = 0;
-                        options.split('\n').forEach(function(opt) {
-                            opt = opt.trim();
-                            if (opt) {
-                                var parts = opt.split('|');
-                                var val = parts[0].trim();
-                                var text = parts[1] ? parts[1].trim() : val;
-                                var optId = fieldId + '_' + checkboxIndex;
-                                fieldHtml += '  <label>\n';
-                                fieldHtml += '    <input type="checkbox" id="' + esc(optId) + '" name="' + esc(name) + '[]" value="' + esc(val) + '"';
-                                if (isRequired && checkboxIndex === 0) fieldHtml += ' required aria-required="true"';
-                                if (cssClass) fieldHtml += ' class="' + esc(cssClass) + '"';
-                                fieldHtml += ' />\n';
-                                fieldHtml += '    ' + esc(text) + '\n';
-                                fieldHtml += '  </label>\n';
-                                checkboxIndex++;
-                            }
-                        });
-                        fieldHtml += '</fieldset>';
+                        var checkboxOpts = options.split('\n').filter(function(o) { return o.trim(); });
+                        if (!isMultiple && checkboxOpts.length <= 1) {
+                            // Single checkbox (e.g., "I agree to terms")
+                            var singleText = checkboxOpts[0] ? checkboxOpts[0].trim() : label;
+                            var singleParts = singleText.split('|');
+                            var singleVal = singleParts[0].trim() || '1';
+                            var singleLabel = singleParts[1] ? singleParts[1].trim() : singleParts[0].trim();
+                            fieldHtml = '<p>\n';
+                            fieldHtml += '  <label>\n';
+                            fieldHtml += '    <input type="checkbox" id="' + esc(fieldId) + '" name="' + esc(name) + '" value="' + esc(singleVal) + '"';
+                            if (isRequired) fieldHtml += ' required aria-required="true"';
+                            if (cssClass) fieldHtml += ' class="' + esc(cssClass) + '"';
+                            fieldHtml += ' />\n';
+                            fieldHtml += '    ' + esc(singleLabel);
+                            if (isRequired) fieldHtml += ' <span aria-hidden="true">*</span>';
+                            fieldHtml += '\n';
+                            fieldHtml += '  </label>\n';
+                            fieldHtml += '</p>';
+                        } else {
+                            // Multiple checkboxes (checkbox group)
+                            fieldHtml = '<fieldset>\n';
+                            fieldHtml += '  <legend>' + esc(label);
+                            if (isRequired) fieldHtml += ' <span aria-hidden="true">*</span>';
+                            fieldHtml += '</legend>\n';
+                            var checkboxIndex = 0;
+                            checkboxOpts.forEach(function(opt) {
+                                opt = opt.trim();
+                                if (opt) {
+                                    var parts = opt.split('|');
+                                    var val = parts[0].trim();
+                                    var text = parts[1] ? parts[1].trim() : val;
+                                    var optId = fieldId + '_' + checkboxIndex;
+                                    fieldHtml += '  <label>\n';
+                                    fieldHtml += '    <input type="checkbox" id="' + esc(optId) + '" name="' + esc(name) + '[]" value="' + esc(val) + '"';
+                                    if (isRequired && checkboxIndex === 0) fieldHtml += ' required aria-required="true"';
+                                    if (cssClass) fieldHtml += ' class="' + esc(cssClass) + '"';
+                                    fieldHtml += ' />\n';
+                                    fieldHtml += '    ' + esc(text) + '\n';
+                                    fieldHtml += '  </label>\n';
+                                    checkboxIndex++;
+                                }
+                            });
+                            fieldHtml += '</fieldset>';
+                        }
                         break;
 
                     case 'radio':
@@ -687,6 +708,7 @@
                         var firstInput = inputs[0];
                         if (firstInput.type === 'radio' || firstInput.type === 'checkbox') {
                             var name = firstInput.name.replace('[]', '');
+                            var hasArrayNotation = firstInput.name.indexOf('[]') !== -1;
                             if (!processedNames[name]) {
                                 processedNames[name] = true;
                                 var opts = [];
@@ -700,6 +722,7 @@
                                     name: name,
                                     options: opts.join('\n'),
                                     required: firstInput.required,
+                                    multiple: firstInput.type === 'checkbox' ? (hasArrayNotation || inputs.length > 1) : false,
                                     class: firstInput.className
                                 }, visualContainer);
                             }
@@ -738,8 +761,8 @@
             var type = input.type || input.tagName.toLowerCase();
             var name = input.name || '';
 
-            if (name && processedNames[name]) return;
-            if (name) processedNames[name] = true;
+            if (name && processedNames[name.replace('[]', '')]) return;
+            if (name) processedNames[name.replace('[]', '')] = true;
 
             if (type === 'submit' || input.tagName === 'BUTTON') type = 'submit';
             if (input.tagName === 'TEXTAREA') type = 'textarea';
@@ -747,7 +770,15 @@
 
             var label = '';
             var labelEl = parent ? parent.querySelector('label') : null;
-            if (labelEl && !labelEl.querySelector('input')) {
+
+            // For checkboxes, get label text from the wrapping label
+            if (type === 'checkbox' && labelEl && labelEl.contains(input)) {
+                // Clone to avoid modifying DOM, remove the input to get just text
+                var labelClone = labelEl.cloneNode(true);
+                var inputInLabel = labelClone.querySelector('input');
+                if (inputInLabel) inputInLabel.remove();
+                label = labelClone.textContent.replace(/\s*\*\s*$/, '').trim();
+            } else if (labelEl && !labelEl.querySelector('input')) {
                 label = labelEl.textContent.replace(/\s*\*\s*$/, '').trim();
             }
 
@@ -764,8 +795,14 @@
                 options = opts.join('\n');
             }
 
+            // Single checkbox - get label text as option
+            if (type === 'checkbox') {
+                options = label || input.value || 'I agree';
+                isMultiple = false;
+            }
+
             addField(type, {
-                label: label || (type === 'submit' ? (input.textContent || input.value) : ''),
+                label: type === 'checkbox' ? 'Checkbox' : (label || (type === 'submit' ? (input.textContent || input.value) : '')),
                 name: name.replace('[]', ''),
                 placeholder: input.placeholder || '',
                 value: type === 'submit' ? (input.textContent || input.value) : (input.value || ''),
