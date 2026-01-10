@@ -221,11 +221,43 @@ class Frontend
         }
         ?>
     </style>
+
+    <?php
+    /**
+     * Fires in the <head> section of the fullscreen form standalone page.
+     *
+     * Use this hook to add custom meta tags, styles, or scripts to the head.
+     *
+     * @since 2.1.0
+     * @param Form $form The form object being displayed.
+     */
+    do_action('cf_fullscreen_head', $form);
+    ?>
 </head>
 <body data-cf-standalone="true">
     <?php
+    /**
+     * Fires before the form is rendered in the fullscreen standalone page.
+     *
+     * Use this hook to add custom content or scripts before the form.
+     *
+     * @since 2.1.0
+     * @param Form $form The form object being displayed.
+     */
+    do_action('cf_fullscreen_before_form', $form);
+
     // Render the form
     echo $form->get_html();
+
+    /**
+     * Fires after the form is rendered in the fullscreen standalone page.
+     *
+     * Use this hook to add custom content after the form (but before scripts).
+     *
+     * @since 2.1.0
+     * @param Form $form The form object being displayed.
+     */
+    do_action('cf_fullscreen_after_form', $form);
     ?>
 
     <!-- Core Forms Scripts -->
@@ -240,6 +272,18 @@ class Frontend
     <?php foreach ($external_js as $js_url): ?>
     <script src="<?php echo esc_url($js_url); ?>"></script>
     <?php endforeach; ?>
+
+    <?php
+    /**
+     * Fires at the end of the body in the fullscreen form standalone page.
+     *
+     * Use this hook to add custom scripts that need to run after all other scripts.
+     *
+     * @since 2.1.0
+     * @param Form $form The form object being displayed.
+     */
+    do_action('cf_fullscreen_footer', $form);
+    ?>
 </body>
 </html>
         <?php

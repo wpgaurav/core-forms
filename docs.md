@@ -16,6 +16,7 @@ This document lists all available hooks, filters, and actions in Core Forms with
 6. [Spam Protection](#spam-protection)
 7. [Actions](#actions)
 8. [Admin](#admin)
+9. [Fullscreen Forms](#fullscreen-forms)
 
 ---
 
@@ -488,6 +489,156 @@ add_action( 'cf_admin_output_form_messages', function( $form ) {
         </td>
     </tr>
     <?php
+} );
+```
+
+---
+
+## Fullscreen Forms
+
+Fullscreen forms render as standalone pages with a Typeform-style one-question-at-a-time interface. These hooks allow you to inject custom code into the standalone fullscreen form page.
+
+### `cf_fullscreen_head`
+
+Fires in the `<head>` section of the fullscreen form standalone page. Use this to add custom meta tags, styles, or scripts to the head.
+
+```php
+/**
+ * @param \Core_Forms\Form $form The form object being displayed
+ */
+add_action( 'cf_fullscreen_head', function( $form ) {
+    // Add custom fonts
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com">';
+    echo '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">';
+    
+    // Add custom styles
+    echo '<style>
+        .cf-fullscreen-overlay { font-family: "Poppins", sans-serif; }
+    </style>';
+} );
+
+// Add tracking pixels for specific forms
+add_action( 'cf_fullscreen_head', function( $form ) {
+    if ( $form->slug === 'lead-capture' ) {
+        echo '<!-- Facebook Pixel Code -->';
+        echo '<script>/* FB Pixel script here */</script>';
+    }
+} );
+```
+
+### `cf_fullscreen_before_form`
+
+Fires before the form is rendered in the fullscreen standalone page. Use this to add custom content or elements before the form.
+
+```php
+/**
+ * @param \Core_Forms\Form $form The form object being displayed
+ */
+add_action( 'cf_fullscreen_before_form', function( $form ) {
+    // Add a logo above the form
+    echo '<div class="cf-custom-header" style="text-align: center; padding: 20px;">';
+    echo '<img src="' . esc_url( get_site_url() . '/logo.png' ) . '" alt="Logo" style="max-height: 50px;">';
+    echo '</div>';
+} );
+
+// Add a welcome message for specific forms
+add_action( 'cf_fullscreen_before_form', function( $form ) {
+    if ( $form->slug === 'survey' ) {
+        echo '<div style="text-align: center; padding: 10px; color: #666;">';
+        echo '<p>This survey takes about 2 minutes to complete.</p>';
+        echo '</div>';
+    }
+} );
+```
+
+### `cf_fullscreen_after_form`
+
+Fires after the form is rendered but before the scripts. Use this to add custom content after the form.
+
+```php
+/**
+ * @param \Core_Forms\Form $form The form object being displayed
+ */
+add_action( 'cf_fullscreen_after_form', function( $form ) {
+    // Add footer content
+    echo '<div class="cf-custom-footer" style="position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; color: #999; font-size: 12px;">';
+    echo '<p>Powered by ' . esc_html( get_bloginfo( 'name' ) ) . '</p>';
+    echo '</div>';
+} );
+
+// Add privacy policy link
+add_action( 'cf_fullscreen_after_form', function( $form ) {
+    $privacy_url = get_privacy_policy_url();
+    if ( $privacy_url ) {
+        echo '<p style="text-align: center; margin-top: 20px;">';
+        echo '<a href="' . esc_url( $privacy_url ) . '" target="_blank" style="color: #666; font-size: 12px;">Privacy Policy</a>';
+        echo '</p>';
+    }
+} );
+```
+
+### `cf_fullscreen_footer`
+
+Fires at the end of the body, after all scripts have loaded. Use this for scripts that need to run after everything else.
+
+```php
+/**
+ * @param \Core_Forms\Form $form The form object being displayed
+ */
+add_action( 'cf_fullscreen_footer', function( $form ) {
+    // Add analytics tracking
+    ?>
+    <script>
+    document.addEventListener('cf-success', function(e) {
+        // Track form completion
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'form_complete', {
+                'form_id': <?php echo (int) $form->ID; ?>,
+                'form_slug': '<?php echo esc_js( $form->slug ); ?>'
+            });
+        }
+    });
+    </script>
+    <?php
+} );
+
+// Add custom JavaScript functionality
+add_action( 'cf_fullscreen_footer', function( $form ) {
+    ?>
+    <script>
+    // Custom keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.history.back();
+        }
+    });
+    </script>
+    <?php
+} );
+```
+
+### Form-specific Hooks
+
+Target specific forms using the form ID or slug:
+
+```php
+// Only run for a specific form
+add_action( 'cf_fullscreen_head', function( $form ) {
+    // Only for form with slug 'contact'
+    if ( $form->slug !== 'contact' ) {
+        return;
+    }
+    
+    // Your code here
+} );
+
+// Or by form ID
+add_action( 'cf_fullscreen_footer', function( $form ) {
+    if ( $form->ID !== 123 ) {
+        return;
+    }
+    
+    // Your code here
 } );
 ```
 
