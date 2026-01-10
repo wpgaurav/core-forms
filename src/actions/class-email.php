@@ -128,12 +128,43 @@ class Email extends Action {
         $charset      = get_bloginfo( 'charset' );
         $headers[]    = sprintf( 'Content-Type: %s; charset=%s', $content_type, $charset );
 
+        $from = '';
         if ( ! empty( $settings['from'] ) ) {
             $from      = cf_replace_data_variables( $settings['from'], $submission, 'strip_tags' );
             $from      = apply_filters( 'cf_action_email_from', $from, $submission );
             $headers[] = sprintf( 'From: %s', $from );
         }
 
-        return wp_mail( $to, $subject, $message, $headers );
+        // Log the email attempt
+        $log_id = cf_log_email( array(
+            'form_id'       => $form->ID,
+            'submission_id' => $submission->id,
+            'to_email'      => $to,
+            'from_email'    => $from,
+            'subject'       => $subject,
+            'message'       => $message,
+            'headers'       => $headers,
+            'status'        => 'pending',
+            'action_type'   => 'email',
+        ) );
+
+        // Send the email
+        $result = wp_mail( $to, $subject, $message, $headers );
+
+        // Update log with result
+        if ( $log_id ) {
+            if ( $result ) {
+                cf_update_email_log_status( $log_id, 'sent' );
+            } else {
+                global $phpmailer;
+                $error_message = '';
+                if ( isset( $phpmailer ) && $phpmailer instanceof \PHPMailer\PHPMailer\PHPMailer ) {
+                    $error_message = $phpmailer->ErrorInfo;
+                }
+                cf_update_email_log_status( $log_id, 'failed', $error_message ?: __( 'Unknown error', 'core-forms' ) );
+            }
+        }
+
+        return $result;
     }
 }

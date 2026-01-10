@@ -30,6 +30,8 @@
 
         var fieldCounter = 0;
         var currentMode = 'visual';
+        var visualModeDirty = false; // Track if user made changes in visual mode
+        var loadingFromCode = false; // True when parsing code to visual (don't mark dirty)
 
         // Field type defaults
         var fieldDefaults = {
@@ -84,8 +86,10 @@
         }
 
         // SYNC: Visual to Code (plain textarea with PrismJS highlighting)
-        function syncVisualToCode() {
+        // Only syncs if user has made changes in visual mode (preserves custom HTML)
+        function syncVisualToCode(force) {
             if (currentMode !== 'visual') return;
+            if (!force && !visualModeDirty) return; // Don't overwrite unless user made changes
 
             var html = generateAccessibleHtml(canvas);
 
@@ -105,6 +109,7 @@
 
         // SYNC: Code to Visual
         function syncCodeToVisual() {
+            loadingFromCode = true; // Prevent marking dirty during load
             canvas.querySelectorAll('.cf-canvas-field').forEach(function(f) { f.remove(); });
             fieldCounter = 0;
 
@@ -120,6 +125,8 @@
                 }
             }
             updateAllEmptyStates();
+            loadingFromCode = false;
+            visualModeDirty = false; // Reset dirty flag after loading
         }
 
         // Mode switching
@@ -339,6 +346,7 @@
             });
             field.addEventListener('dragend', function() {
                 this.classList.remove('dragging');
+                visualModeDirty = true; // User reordered fields
                 syncVisualToCode();
                 updateAllEmptyStates();
             });
@@ -397,10 +405,15 @@
                 removeField(field);
             });
 
-            // Sync on any input change
+            // Sync on any input change (mark dirty when user edits)
             field.querySelectorAll('input, textarea').forEach(function(input) {
-                input.addEventListener('change', syncVisualToCode);
-                input.addEventListener('blur', syncVisualToCode);
+                input.addEventListener('change', function() {
+                    visualModeDirty = true;
+                    syncVisualToCode();
+                });
+                input.addEventListener('blur', function() {
+                    if (visualModeDirty) syncVisualToCode();
+                });
             });
 
             // Insert field into container
@@ -409,6 +422,11 @@
                 container.insertBefore(field, emptyMsg);
             } else {
                 container.appendChild(field);
+            }
+
+            // Mark as dirty if user added (not loading from code)
+            if (!loadingFromCode) {
+                visualModeDirty = true;
             }
 
             console.log('Added field:', type, 'id:', id);
@@ -422,6 +440,7 @@
             var nextField = fields[index + 1] || fields[index - 1];
 
             field.remove();
+            visualModeDirty = true; // User removed a field
             updateAllEmptyStates();
             syncVisualToCode();
 
@@ -430,11 +449,13 @@
         }
 
         function updateAllEmptyStates() {
-            // Main canvas
+            // Main canvas - check for fields OR code hints
             var canvasEmpty = canvas.querySelector(':scope > .cf-canvas-empty');
             var canvasFields = canvas.querySelectorAll(':scope > .cf-canvas-field');
+            var codeHints = canvas.querySelectorAll(':scope > .cf-code-hint');
+            var hasContent = canvasFields.length > 0 || codeHints.length > 0;
             if (canvasEmpty) {
-                canvasEmpty.style.display = canvasFields.length > 0 ? 'none' : 'block';
+                canvasEmpty.style.display = hasContent ? 'none' : 'block';
             }
 
             // Fieldset drop zones
@@ -692,10 +713,210 @@
             return html.join('\n\n');
         }
 
-        // Parse HTML to visual
+        // Check if HTML has complex wrapper structure (not just simple p/div)
+        function hasComplexStructure(htmlContainer) {
+            var html = htmlContainer.innerHTML;
+            // Check for nested divs with classes, custom wrappers, etc.
+            var complexPatterns = [
+                /<div[^>]+class="[^"]*(?:column|row|grid|flex|wrapper|container|block|section)[^"]*"/i,
+                /<div[^>]*>\s*<div[^>]*>/i, // Nested divs
+                /<div[^>]+style="/i // Inline styles
+            ];
+            return complexPatterns.some(function(pattern) {
+                return pattern.test(html);
+            });
+        }
+
+        // Add a code hint block to show wrapper HTML
+        function addCodeHint(code, visualContainer, label) {
+            var hintTemplate = document.getElementById('cf-code-hint-template');
+            if (!hintTemplate) return null;
+
+            var div = document.createElement('div');
+            div.innerHTML = hintTemplate.innerHTML.trim();
+            var hint = div.firstChild;
+
+            var codeEl = hint.querySelector('.cf-code-hint-code');
+            if (codeEl) {
+                // Format and display the code
+                var formatted = code.trim()
+                    .replace(/></g, '>\n<')
+                    .replace(/^\s+/gm, function(match) {
+                        return match.replace(/  /g, '  ');
+                    });
+                codeEl.textContent = formatted;
+            }
+
+            if (label) {
+                var labelEl = hint.querySelector('.cf-code-hint-label');
+                if (labelEl) labelEl.textContent = label;
+            }
+
+            // Toggle functionality
+            var toggleBtn = hint.querySelector('.cf-code-hint-toggle');
+            var content = hint.querySelector('.cf-code-hint-content');
+            if (toggleBtn && content) {
+                toggleBtn.addEventListener('click', function() {
+                    var expanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', String(!expanded));
+                    content.hidden = expanded;
+                    this.querySelector('.dashicons').className = 'dashicons dashicons-arrow-' + (expanded ? 'down' : 'up') + '-alt2';
+                });
+            }
+
+            var emptyMsg = visualContainer.querySelector(':scope > .cf-canvas-empty');
+            if (emptyMsg) {
+                visualContainer.insertBefore(hint, emptyMsg);
+            } else {
+                visualContainer.appendChild(hint);
+            }
+
+            return hint;
+        }
+
+        // Parse HTML to visual with code hints for complex structures
         function parseContainerToVisual(htmlContainer, visualContainer) {
             var processedNames = {};
+            var html = htmlContainer.innerHTML;
 
+            // Check if this is complex HTML that needs code hints
+            if (hasComplexStructure(htmlContainer)) {
+                parseWithCodeHints(html, visualContainer, processedNames);
+                return;
+            }
+
+            // Simple structure - use direct parsing
+            parseSimpleStructure(htmlContainer, visualContainer, processedNames);
+        }
+
+        // Parse complex HTML with code hints
+        function parseWithCodeHints(html, visualContainer, processedNames) {
+            // Add notice about complex HTML
+            var notice = document.createElement('div');
+            notice.className = 'cf-complex-html-notice';
+            notice.innerHTML = '<span class="dashicons dashicons-info-outline"></span> ' +
+                '<strong>Complex HTML detected.</strong> ' +
+                'Wrapper HTML is shown as code hints (non-editable). Edit in Code mode to modify structure.';
+            visualContainer.insertBefore(notice, visualContainer.firstChild);
+
+            // Find all form fields in the HTML
+            var fieldRegex = /<(input|textarea|select|button)[^>]*>/gi;
+            var matches = [];
+            var match;
+
+            while ((match = fieldRegex.exec(html)) !== null) {
+                matches.push({
+                    tag: match[1].toLowerCase(),
+                    html: match[0],
+                    index: match.index,
+                    endIndex: match.index + match[0].length
+                });
+            }
+
+            // Also find closing tags for textarea/select/button
+            matches.forEach(function(m) {
+                if (m.tag === 'textarea' || m.tag === 'select' || m.tag === 'button') {
+                    var closeTag = '</' + m.tag + '>';
+                    var closeIndex = html.indexOf(closeTag, m.endIndex);
+                    if (closeIndex !== -1) {
+                        m.endIndex = closeIndex + closeTag.length;
+                        m.html = html.substring(m.index, m.endIndex);
+                    }
+                }
+            });
+
+            if (matches.length === 0) {
+                // No form fields found, show all as code hint
+                if (html.trim()) {
+                    addCodeHint(html, visualContainer, 'Custom HTML');
+                }
+                return;
+            }
+
+            var lastIndex = 0;
+
+            matches.forEach(function(m, i) {
+                // Add code hint for HTML before this field
+                if (m.index > lastIndex) {
+                    var beforeHtml = html.substring(lastIndex, m.index);
+                    if (beforeHtml.trim()) {
+                        addCodeHint(beforeHtml, visualContainer, 'HTML Before Field ' + (i + 1));
+                    }
+                }
+
+                // Parse and add the form field
+                var parser = new DOMParser();
+                var doc = parser.parseFromString('<div>' + m.html + '</div>', 'text/html');
+                var fieldEl = doc.querySelector('input, textarea, select, button');
+
+                if (fieldEl) {
+                    // Find the label if it's in the preceding HTML
+                    var labelText = '';
+                    var beforeHtml = html.substring(lastIndex, m.index);
+                    var labelMatch = beforeHtml.match(/<label[^>]*>([^<]*)<\/label>/i);
+                    if (labelMatch) {
+                        labelText = labelMatch[1].replace(/\s*\*\s*$/, '').trim();
+                    }
+
+                    parseInputElementWithLabel(fieldEl, labelText, visualContainer, processedNames);
+                }
+
+                lastIndex = m.endIndex;
+            });
+
+            // Add code hint for remaining HTML after last field
+            if (lastIndex < html.length) {
+                var afterHtml = html.substring(lastIndex);
+                if (afterHtml.trim()) {
+                    addCodeHint(afterHtml, visualContainer, 'HTML After Fields');
+                }
+            }
+        }
+
+        // Parse input element with explicit label
+        function parseInputElementWithLabel(input, labelText, visualContainer, processedNames) {
+            var type = input.type || input.tagName.toLowerCase();
+            var name = input.name || '';
+
+            if (name && processedNames[name.replace('[]', '')]) return;
+            if (name) processedNames[name.replace('[]', '')] = true;
+
+            if (type === 'submit' || input.tagName === 'BUTTON') type = 'submit';
+            if (input.tagName === 'TEXTAREA') type = 'textarea';
+            if (input.tagName === 'SELECT') type = 'select';
+
+            var options = '';
+            var isMultiple = false;
+
+            if (type === 'select') {
+                isMultiple = input.hasAttribute('multiple');
+                var opts = [];
+                input.querySelectorAll('option').forEach(function(opt) {
+                    if (opt.value) {
+                        opts.push(opt.value + (opt.textContent !== opt.value ? '|' + opt.textContent : ''));
+                    }
+                });
+                options = opts.join('\n');
+            }
+
+            addField(type, {
+                label: labelText || name || type,
+                name: name,
+                placeholder: input.placeholder || '',
+                value: type === 'submit' ? (input.value || input.textContent || 'Submit') : (input.value || ''),
+                options: options,
+                required: input.required,
+                multiple: isMultiple,
+                rows: input.rows || '5',
+                min: input.min || '',
+                max: input.max || '',
+                step: input.step || '',
+                class: input.className
+            }, visualContainer);
+        }
+
+        // Simple structure parsing (original behavior)
+        function parseSimpleStructure(htmlContainer, visualContainer, processedNames) {
             Array.from(htmlContainer.children).forEach(function(el) {
                 var tagName = el.tagName.toLowerCase();
 
@@ -738,7 +959,7 @@
 
                     var dropZone = newField.querySelector('.cf-fieldset-dropzone');
                     if (dropZone) {
-                        parseContainerToVisual(el, dropZone);
+                        parseSimpleStructure(el, dropZone, processedNames);
                     }
                     return;
                 }

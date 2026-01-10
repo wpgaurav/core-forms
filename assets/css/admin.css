@@ -457,6 +457,90 @@
     padding: 8px 0;
 }
 
+/* Code Hints (for complex HTML wrappers) */
+.cf-code-hint {
+    background: #f0f0f1;
+    border: 1px dashed #c3c4c7;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+}
+
+.cf-code-hint-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px;
+    color: #646970;
+    cursor: default;
+}
+
+.cf-code-hint-header .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #8c8f94;
+}
+
+.cf-code-hint-label {
+    flex: 1;
+    font-weight: 500;
+    color: #50575e;
+}
+
+.cf-code-hint-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #646970;
+    border-radius: 3px;
+}
+
+.cf-code-hint-toggle:hover {
+    background: #dcdcde;
+    color: #2271b1;
+}
+
+.cf-code-hint-content {
+    border-top: 1px dashed #c3c4c7;
+}
+
+.cf-code-hint-code {
+    margin: 0;
+    padding: 12px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #1e1e1e;
+    background: #f6f7f7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Complex HTML Notice */
+.cf-complex-html-notice {
+    background: #fcf9e8;
+    border: 1px solid #dba617;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #50575e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cf-complex-html-notice .dashicons {
+    color: #dba617;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
 /* Custom CSS/JS */
 .cf-custom-code {
     margin-top: 20px;

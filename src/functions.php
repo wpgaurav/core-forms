@@ -520,8 +520,9 @@ function _cf_on_plugin_activation() {
         return;
     }
 
-    // install table for regular wp install
+    // install tables for regular wp install
     _cf_create_submissions_table();
+    _cf_create_email_logs_table();
 
     // add "edit_forms" cap to user that activated the plugin
     $user = wp_get_current_user();
@@ -537,8 +538,9 @@ function _cf_on_plugin_activation_multisite() {
     foreach ( get_sites( array( 'number' => PHP_INT_MAX ) ) as $site ) {
         switch_to_blog( (int) $site->blog_id );
 
-        // install table for current blog
+        // install tables for current blog
         _cf_create_submissions_table();
+        _cf_create_email_logs_table();
 
         // iterate through current blog admins
         foreach ( get_users(
@@ -606,6 +608,7 @@ function _cf_on_add_user_to_blog( $user_id, $role, $blog_id ) {
 function _cf_on_wp_insert_site( \WP_Site $site ) {
     switch_to_blog( (int) $site->blog_id );
     _cf_create_submissions_table();
+    _cf_create_email_logs_table();
     restore_current_blog();
 }
 
@@ -1053,3 +1056,255 @@ function cf_enhance_accessibility( $markup, $form = null ) {
 
 // Hook accessibility enhancement to form markup
 add_filter( 'cf_form_markup', 'cf_enhance_accessibility', 100, 2 );
+
+/**
+ * Create email logs table
+ */
+function _cf_create_email_logs_table() {
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    $wpdb->query(
+        "CREATE TABLE IF NOT EXISTS {$table}(
+        `id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        `form_id` INT UNSIGNED NOT NULL,
+        `submission_id` INT UNSIGNED NULL,
+        `to_email` VARCHAR(255) NOT NULL,
+        `from_email` VARCHAR(255) NULL,
+        `subject` VARCHAR(500) NULL,
+        `message` LONGTEXT NULL,
+        `headers` TEXT NULL,
+        `status` VARCHAR(20) NOT NULL DEFAULT 'pending',
+        `error_message` TEXT NULL,
+        `action_type` VARCHAR(50) DEFAULT 'email',
+        `sent_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX form_idx (form_id),
+        INDEX submission_idx (submission_id),
+        INDEX status_idx (status)
+    ) {$charset_collate};"
+    );
+}
+
+/**
+ * Log an email attempt
+ *
+ * @param array $data Email data
+ * @return int|false Log ID or false on failure
+ */
+function cf_log_email( array $data ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    $defaults = array(
+        'form_id'       => 0,
+        'submission_id' => null,
+        'to_email'      => '',
+        'from_email'    => '',
+        'subject'       => '',
+        'message'       => '',
+        'headers'       => '',
+        'status'        => 'pending',
+        'error_message' => null,
+        'action_type'   => 'email',
+    );
+    $data = array_merge( $defaults, $data );
+
+    $result = $wpdb->insert(
+        $table,
+        array(
+            'form_id'       => (int) $data['form_id'],
+            'submission_id' => $data['submission_id'] ? (int) $data['submission_id'] : null,
+            'to_email'      => sanitize_email( $data['to_email'] ),
+            'from_email'    => sanitize_email( $data['from_email'] ),
+            'subject'       => sanitize_text_field( $data['subject'] ),
+            'message'       => $data['message'],
+            'headers'       => is_array( $data['headers'] ) ? implode( "\n", $data['headers'] ) : $data['headers'],
+            'status'        => sanitize_key( $data['status'] ),
+            'error_message' => $data['error_message'],
+            'action_type'   => sanitize_key( $data['action_type'] ),
+        ),
+        array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
+    );
+
+    return $result ? $wpdb->insert_id : false;
+}
+
+/**
+ * Update email log status
+ *
+ * @param int $log_id Log ID
+ * @param string $status Status (sent, failed, pending)
+ * @param string|null $error_message Error message if failed
+ * @return bool
+ */
+function cf_update_email_log_status( $log_id, $status, $error_message = null ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    $data = array( 'status' => sanitize_key( $status ) );
+    $formats = array( '%s' );
+
+    if ( $error_message !== null ) {
+        $data['error_message'] = $error_message;
+        $formats[] = '%s';
+    }
+
+    return (bool) $wpdb->update( $table, $data, array( 'id' => $log_id ), $formats, array( '%d' ) );
+}
+
+/**
+ * Get email logs
+ *
+ * @param array $args Query arguments
+ * @return array
+ */
+function cf_get_email_logs( array $args = array() ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    $defaults = array(
+        'form_id'       => 0,
+        'submission_id' => 0,
+        'status'        => '',
+        'search'        => '',
+        'date_from'     => '',
+        'date_to'       => '',
+        'offset'        => 0,
+        'limit'         => 50,
+        'orderby'       => 'sent_at',
+        'order'         => 'DESC',
+    );
+    $args = array_merge( $defaults, $args );
+
+    $where_clauses = array( '1=1' );
+    $prepare_values = array();
+
+    if ( ! empty( $args['form_id'] ) ) {
+        $where_clauses[] = 'form_id = %d';
+        $prepare_values[] = (int) $args['form_id'];
+    }
+
+    if ( ! empty( $args['submission_id'] ) ) {
+        $where_clauses[] = 'submission_id = %d';
+        $prepare_values[] = (int) $args['submission_id'];
+    }
+
+    if ( ! empty( $args['status'] ) ) {
+        $where_clauses[] = 'status = %s';
+        $prepare_values[] = $args['status'];
+    }
+
+    if ( ! empty( $args['search'] ) ) {
+        $where_clauses[] = '(to_email LIKE %s OR subject LIKE %s)';
+        $search_like = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+        $prepare_values[] = $search_like;
+        $prepare_values[] = $search_like;
+    }
+
+    if ( ! empty( $args['date_from'] ) ) {
+        $where_clauses[] = 'sent_at >= %s';
+        $prepare_values[] = $args['date_from'] . ' 00:00:00';
+    }
+
+    if ( ! empty( $args['date_to'] ) ) {
+        $where_clauses[] = 'sent_at <= %s';
+        $prepare_values[] = $args['date_to'] . ' 23:59:59';
+    }
+
+    $where = implode( ' AND ', $where_clauses );
+    $orderby = in_array( $args['orderby'], array( 'sent_at', 'id', 'status' ), true ) ? $args['orderby'] : 'sent_at';
+    $order = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
+
+    $sql = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+    $prepare_values[] = (int) $args['limit'];
+    $prepare_values[] = (int) $args['offset'];
+
+    if ( ! empty( $prepare_values ) ) {
+        $results = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_values ) );
+    } else {
+        $results = $wpdb->get_results( $sql );
+    }
+
+    return $results ?: array();
+}
+
+/**
+ * Count email logs
+ *
+ * @param array $args Query arguments
+ * @return int
+ */
+function cf_count_email_logs( array $args = array() ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    $defaults = array(
+        'form_id'       => 0,
+        'submission_id' => 0,
+        'status'        => '',
+        'search'        => '',
+        'date_from'     => '',
+        'date_to'       => '',
+    );
+    $args = array_merge( $defaults, $args );
+
+    $where_clauses = array( '1=1' );
+    $prepare_values = array();
+
+    if ( ! empty( $args['form_id'] ) ) {
+        $where_clauses[] = 'form_id = %d';
+        $prepare_values[] = (int) $args['form_id'];
+    }
+
+    if ( ! empty( $args['submission_id'] ) ) {
+        $where_clauses[] = 'submission_id = %d';
+        $prepare_values[] = (int) $args['submission_id'];
+    }
+
+    if ( ! empty( $args['status'] ) ) {
+        $where_clauses[] = 'status = %s';
+        $prepare_values[] = $args['status'];
+    }
+
+    if ( ! empty( $args['search'] ) ) {
+        $where_clauses[] = '(to_email LIKE %s OR subject LIKE %s)';
+        $search_like = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+        $prepare_values[] = $search_like;
+        $prepare_values[] = $search_like;
+    }
+
+    if ( ! empty( $args['date_from'] ) ) {
+        $where_clauses[] = 'sent_at >= %s';
+        $prepare_values[] = $args['date_from'] . ' 00:00:00';
+    }
+
+    if ( ! empty( $args['date_to'] ) ) {
+        $where_clauses[] = 'sent_at <= %s';
+        $prepare_values[] = $args['date_to'] . ' 23:59:59';
+    }
+
+    $where = implode( ' AND ', $where_clauses );
+
+    if ( ! empty( $prepare_values ) ) {
+        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE {$where}", $prepare_values ) );
+    }
+
+    return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" );
+}
+
+/**
+ * Delete old email logs (cleanup)
+ *
+ * @param int $days_old Delete logs older than this many days
+ * @return int Number of rows deleted
+ */
+function cf_delete_old_email_logs( $days_old = 90 ) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'cf_email_logs';
+
+    return $wpdb->query( $wpdb->prepare(
+        "DELETE FROM {$table} WHERE sent_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+        (int) $days_old
+    ) );
+}

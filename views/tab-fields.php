@@ -114,6 +114,22 @@
 <input type="hidden" id="cf-required-fields" name="form[settings][required_fields]" value="<?php echo esc_attr($form->settings['required_fields']); ?>" />
 <input type="hidden" id="cf-email-fields" name="form[settings][email_fields]" value="<?php echo esc_attr($form->settings['email_fields']); ?>" />
 
+<!-- Code Hint Template (for displaying wrapper HTML) -->
+<script type="text/html" id="cf-code-hint-template">
+<div class="cf-code-hint" role="listitem">
+    <div class="cf-code-hint-header">
+        <span class="dashicons dashicons-editor-code" aria-hidden="true"></span>
+        <span class="cf-code-hint-label"><?php _e('HTML Wrapper', 'core-forms'); ?></span>
+        <button type="button" class="cf-code-hint-toggle" aria-expanded="false" aria-label="<?php esc_attr_e('Toggle code view', 'core-forms'); ?>">
+            <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+        </button>
+    </div>
+    <div class="cf-code-hint-content" hidden>
+        <pre class="cf-code-hint-code"></pre>
+    </div>
+</div>
+</script>
+
 <!-- Field Editor Template -->
 <script type="text/html" id="cf-field-template">
 <div class="cf-canvas-field" data-type="{{type}}" data-id="{{id}}" role="listitem" tabindex="0" aria-label="{{label}} field">
