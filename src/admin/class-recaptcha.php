@@ -67,7 +67,7 @@ class Recaptcha {
      * Enqueue reCAPTCHA scripts when a form is being rendered
      * 
      * @param string $html
-     * @param \HTML_Forms\Form $form
+     * @param \Core_Forms\Form $form
      * @return string
      */
     public function enqueue_recaptcha_on_form_render( $html, $form ) {
@@ -129,7 +129,7 @@ class Recaptcha {
      * Add reCAPTCHA comment to form markup
      * 
      * @param string $markup
-     * @param \HTML_Forms\Form $form
+     * @param \Core_Forms\Form $form
      * @return string
      */
     public function add_recaptcha_to_form( $markup, $form ) {
@@ -142,7 +142,7 @@ class Recaptcha {
      * Validate reCAPTCHA response
      * 
      * @param string $error_code
-     * @param \HTML_Forms\Form $form
+     * @param \Core_Forms\Form $form
      * @param array $data
      * @return string
      */
@@ -242,7 +242,7 @@ class Recaptcha {
      * Log debug information if WP_DEBUG is enabled
      * 
      * @param string $message
-     * @param \HTML_Forms\Form $form
+     * @param \Core_Forms\Form $form
      */
     private function log_debug( $message, $form = null ) {
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -257,7 +257,7 @@ class Recaptcha {
     /**
      * Output reCAPTCHA message fields in the Messages tab
      * 
-     * @param \HTML_Forms\Form $form
+     * @param \Core_Forms\Form $form
      */
     public function output_recaptcha_message_fields( $form ) {
         // Only show these fields if reCAPTCHA is configured

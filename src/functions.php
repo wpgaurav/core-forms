@@ -895,3 +895,161 @@ function cf_get_poll_total_votes( $poll_id ) {
         $poll_id
     ) );
 }
+
+/**
+ * Enhance form markup with accessibility attributes
+ * Automatically adds missing ARIA attributes, associates labels, etc.
+ *
+ * @param string $markup Form markup HTML
+ * @param Form $form Form object
+ * @return string Enhanced markup
+ */
+function cf_enhance_accessibility( $markup, $form = null ) {
+    if ( empty( $markup ) ) {
+        return $markup;
+    }
+
+    $dom = new \DOMDocument();
+    libxml_use_internal_errors( true );
+    $dom->loadHTML(
+        '<?xml encoding="UTF-8"><div id="cf-a11y-wrapper">' . $markup . '</div>',
+        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+    );
+    libxml_clear_errors();
+
+    $xpath = new \DOMXPath( $dom );
+
+    // Track IDs we've seen to avoid duplicates
+    $seen_ids = array();
+    $id_counter = 1;
+
+    // 1. Add aria-required to required fields that don't have it
+    $required_fields = $xpath->query( '//*[@required and not(@aria-required)]' );
+    foreach ( $required_fields as $field ) {
+        $field->setAttribute( 'aria-required', 'true' );
+    }
+
+    // 2. Ensure all form inputs have IDs (needed for label association)
+    $inputs = $xpath->query( '//input[not(@type="hidden") and not(@type="submit")] | //textarea | //select' );
+    foreach ( $inputs as $input ) {
+        if ( ! $input->hasAttribute( 'id' ) ) {
+            $name = $input->getAttribute( 'name' );
+            $base_id = $name ? preg_replace( '/[^a-z0-9_-]/i', '_', $name ) : 'cf_field';
+            $new_id = $base_id;
+            while ( isset( $seen_ids[ $new_id ] ) ) {
+                $new_id = $base_id . '_' . $id_counter++;
+            }
+            $input->setAttribute( 'id', $new_id );
+            $seen_ids[ $new_id ] = true;
+        } else {
+            $seen_ids[ $input->getAttribute( 'id' ) ] = true;
+        }
+    }
+
+    // 3. Associate orphan labels with their inputs (labels without "for" attribute)
+    $labels = $xpath->query( '//label[not(@for)]' );
+    foreach ( $labels as $label ) {
+        // Check if label wraps an input
+        $wrapped_input = $xpath->query( './/input | .//textarea | .//select', $label );
+        if ( $wrapped_input->length > 0 ) {
+            // Label wraps input - get or set ID
+            $input = $wrapped_input->item( 0 );
+            if ( $input->hasAttribute( 'id' ) ) {
+                $label->setAttribute( 'for', $input->getAttribute( 'id' ) );
+            }
+        } else {
+            // Look for adjacent input (next sibling or in same parent)
+            $parent = $label->parentNode;
+            $adjacent_input = $xpath->query( './/input[not(@type="hidden")] | .//textarea | .//select', $parent );
+            if ( $adjacent_input->length > 0 ) {
+                $input = $adjacent_input->item( 0 );
+                if ( $input->hasAttribute( 'id' ) && ! $label->hasAttribute( 'for' ) ) {
+                    $label->setAttribute( 'for', $input->getAttribute( 'id' ) );
+                }
+            }
+        }
+    }
+
+    // 4. Add autocomplete attributes for common field types
+    $autocomplete_map = array(
+        'email'      => 'email',
+        'name'       => 'name',
+        'first_name' => 'given-name',
+        'last_name'  => 'family-name',
+        'phone'      => 'tel',
+        'tel'        => 'tel',
+        'address'    => 'street-address',
+        'city'       => 'address-level2',
+        'state'      => 'address-level1',
+        'zip'        => 'postal-code',
+        'postal'     => 'postal-code',
+        'country'    => 'country-name',
+        'url'        => 'url',
+        'website'    => 'url',
+    );
+
+    $all_inputs = $xpath->query( '//input[not(@autocomplete) and not(@type="hidden") and not(@type="submit") and not(@type="checkbox") and not(@type="radio")] | //textarea[not(@autocomplete)] | //select[not(@autocomplete)]' );
+    foreach ( $all_inputs as $input ) {
+        $name = strtolower( $input->getAttribute( 'name' ) );
+        $type = $input->getAttribute( 'type' );
+
+        // Set autocomplete based on input type
+        if ( $type === 'email' ) {
+            $input->setAttribute( 'autocomplete', 'email' );
+        } elseif ( $type === 'tel' ) {
+            $input->setAttribute( 'autocomplete', 'tel' );
+        } elseif ( $type === 'url' ) {
+            $input->setAttribute( 'autocomplete', 'url' );
+        } else {
+            // Check name against map
+            foreach ( $autocomplete_map as $key => $value ) {
+                if ( strpos( $name, $key ) !== false ) {
+                    $input->setAttribute( 'autocomplete', $value );
+                    break;
+                }
+            }
+        }
+    }
+
+    // 5. Ensure fieldsets have legends
+    $fieldsets = $xpath->query( '//fieldset[not(legend)]' );
+    foreach ( $fieldsets as $fieldset ) {
+        $legend = $dom->createElement( 'legend', __( 'Field Group', 'core-forms' ) );
+        $legend->setAttribute( 'class', 'screen-reader-text' );
+        $fieldset->insertBefore( $legend, $fieldset->firstChild );
+    }
+
+    // 6. Add input type attributes for better mobile support
+    $email_inputs = $xpath->query( '//input[@type="text" and contains(@name, "email")]' );
+    foreach ( $email_inputs as $input ) {
+        $input->setAttribute( 'type', 'email' );
+        $input->setAttribute( 'inputmode', 'email' );
+    }
+
+    $tel_inputs = $xpath->query( '//input[@type="text" and (contains(@name, "phone") or contains(@name, "tel"))]' );
+    foreach ( $tel_inputs as $input ) {
+        $input->setAttribute( 'type', 'tel' );
+        $input->setAttribute( 'inputmode', 'tel' );
+    }
+
+    $url_inputs = $xpath->query( '//input[@type="text" and (contains(@name, "url") or contains(@name, "website"))]' );
+    foreach ( $url_inputs as $input ) {
+        $input->setAttribute( 'type', 'url' );
+        $input->setAttribute( 'inputmode', 'url' );
+    }
+
+    // Get the wrapper content
+    $wrapper = $dom->getElementById( 'cf-a11y-wrapper' );
+    if ( $wrapper ) {
+        $html = '';
+        foreach ( $wrapper->childNodes as $child ) {
+            $html .= $dom->saveHTML( $child );
+        }
+        return $html;
+    }
+
+    return $markup;
+}
+
+// Hook accessibility enhancement to form markup
+add_filter( 'cf_form_markup', 'cf_enhance_accessibility', 100, 2 );

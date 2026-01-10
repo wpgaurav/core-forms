@@ -44,81 +44,95 @@ if ( ! empty( $_GET['reply_error'] ) ) {
     <?php \Core_Forms\Admin\SubmissionEditor::render_edit_form( $submission, $form ); ?>
 <?php else : ?>
 
-<div>
-    <div class="cf-small-margin">
-        <table class="cf-bordered">
-            <tbody>
-            <tr>
-                <th><?php _e( 'Submitted', 'core-forms' ); ?></th>
-                <td><?php echo date( $datetime_format, strtotime( $submission->submitted_at ) ); ?></td>
-            </tr>
-
-            <?php if ( ! empty( $submission->modified_at ) ) : ?>
-            <tr>
-                <th><?php _e( 'Last Modified', 'core-forms' ); ?></th>
-                <td><?php echo date( $datetime_format, strtotime( $submission->modified_at ) ); ?></td>
-            </tr>
-            <?php endif; ?>
-
-            <?php if ( ! empty( $submission->user_agent ) ) : ?>
-            <tr>
-                <th><?php _e( 'User Agent', 'core-forms' ); ?></th>
-                <td><?php echo esc_html( $submission->user_agent ); ?></td>
-            </tr>
-            <?php endif; ?>
-
-            <?php if ( ! empty( $submission->ip_address ) ) : ?>
-            <tr>
-                <th><?php _e( 'IP Address', 'core-forms' ); ?></th>
-                <td><?php echo esc_html( $submission->ip_address ); ?></td>
-            </tr>
-            <?php endif; ?>
-
-            <tr>
-                <th><?php _e( 'Referrer URL', 'core-forms' ); ?></th>
-                <td><?php echo sprintf( '<a href="%s">%s</a>', esc_attr( esc_url( $submission->referer_url ) ), esc_html( esc_url( $submission->referer_url ) ) ); ?></td>
-            </tr>
-            </tbody>
-        </table>
+<div class="cf-submission-grid">
+    <!-- Left Column: Fields -->
+    <div class="cf-submission-card cf-submission-fields">
+        <div class="cf-card-header">
+            <h3><?php _e( 'Fields', 'core-forms' ); ?></h3>
+        </div>
+        <div class="cf-card-body">
+            <table class="cf-bordered">
+                <tbody>
+                <?php
+                if( is_array( $submission->data ) ) {
+                    foreach( $submission->data as $field => $value ) {
+                        echo '<tr>';
+                        echo sprintf( '<th>%s</th>', esc_html( str_replace( '_', ' ', ucfirst( strtolower( $field ) ) ) ) );
+                        echo '<td>';
+                        echo cf_field_value($value);
+                        echo '</td>';
+                        echo '</tr>';
+                    }
+                } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="cf-small-margin">
-        <h3><?php _e( 'Fields', 'core-forms' ); ?></h3>
-        <table class="cf-bordered">
-            <tbody>
-            <?php
-            if( is_array( $submission->data ) ) {
-                foreach( $submission->data as $field => $value ) {
-                    echo '<tr>';
-                    echo sprintf( '<th>%s</th>', esc_html( str_replace( '_', ' ', ucfirst( strtolower( $field ) ) ) ) );
-                    echo '<td>';
-                    echo cf_field_value($value);
-                    echo '</td>';
-                    echo '</tr>';
-                }
-            } ?>
-            </tbody>
-        </table>
-    </div>
+    <!-- Right Column: Metadata -->
+    <div class="cf-submission-card cf-submission-meta">
+        <div class="cf-card-header">
+            <h3><?php _e( 'Submission Info', 'core-forms' ); ?></h3>
+        </div>
+        <div class="cf-card-body">
+            <table class="cf-bordered">
+                <tbody>
+                <tr>
+                    <th><?php _e( 'Submitted', 'core-forms' ); ?></th>
+                    <td><?php echo date( $datetime_format, strtotime( $submission->submitted_at ) ); ?></td>
+                </tr>
 
-    <div class="cf-small-margin">
-        <h3><?php _e( 'Raw Data', 'core-forms' ); ?></h3>
-        <details>
-            <summary><?php _e( 'Click to expand', 'core-forms' ); ?></summary>
-            <pre class="cf-well"><?php
-                echo esc_html( json_encode( $submission, JSON_PRETTY_PRINT ) );
-            ?></pre>
-        </details>
-    </div>
+                <?php if ( ! empty( $submission->modified_at ) ) : ?>
+                <tr>
+                    <th><?php _e( 'Last Modified', 'core-forms' ); ?></th>
+                    <td><?php echo date( $datetime_format, strtotime( $submission->modified_at ) ); ?></td>
+                </tr>
+                <?php endif; ?>
 
+                <?php if ( ! empty( $submission->ip_address ) ) : ?>
+                <tr>
+                    <th><?php _e( 'IP Address', 'core-forms' ); ?></th>
+                    <td><?php echo esc_html( $submission->ip_address ); ?></td>
+                </tr>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $submission->referer_url ) ) : ?>
+                <tr>
+                    <th><?php _e( 'Referrer URL', 'core-forms' ); ?></th>
+                    <td><a href="<?php echo esc_url( $submission->referer_url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $submission->referer_url ); ?></a></td>
+                </tr>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $submission->user_agent ) ) : ?>
+                <tr>
+                    <th><?php _e( 'User Agent', 'core-forms' ); ?></th>
+                    <td><small><?php echo esc_html( $submission->user_agent ); ?></small></td>
+                </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cf-card-header" style="margin-top: 20px;">
+            <h3><?php _e( 'Raw Data', 'core-forms' ); ?></h3>
+        </div>
+        <div class="cf-card-body">
+            <details>
+                <summary><?php _e( 'Click to expand', 'core-forms' ); ?></summary>
+                <pre class="cf-well"><?php echo esc_html( json_encode( $submission, JSON_PRETTY_PRINT ) ); ?></pre>
+            </details>
+        </div>
+    </div>
+</div>
+
+<!-- Reply Section (Full Width) -->
+<div class="cf-submission-reply-section">
     <?php \Core_Forms\Admin\SubmissionReply::render_replies_list( $submission->id ); ?>
-
     <?php \Core_Forms\Admin\SubmissionReply::render_reply_form( $submission, $form ); ?>
-
 </div>
 
 <?php endif; ?>
 
 <div class="cf-small-margin">
-    <p><a href="<?php echo esc_attr( remove_query_arg( array( 'view_submission', 'edit', 'updated', 'reply_sent', 'reply_error' ) ) ); ?>">&lsaquo; <?php _e( 'Back to submissions list', 'core-forms' ); ?></a></p>
+    <p><a href="<?php echo esc_url( remove_query_arg( array( 'submission_id', 'edit', 'updated', 'reply_sent', 'reply_error' ) ) ); ?>">&lsaquo; <?php _e( 'Back to submissions list', 'core-forms' ); ?></a></p>
 </div>

@@ -1,6 +1,6 @@
 <?php defined( 'ABSPATH' ) or exit;
 
-/** @var HTML_Forms\Form $form */
+/** @var Core_Forms\Form $form */
 ?>
 
 <h2><?php _e( 'Form Messages', 'core-forms' ); ?></h2>

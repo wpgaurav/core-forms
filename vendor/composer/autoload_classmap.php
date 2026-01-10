@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'Core_Forms\\Actions\\Action' => $baseDir . '/src/actions/class-action.php',
+    'Core_Forms\\Actions\\AutoResponder' => $baseDir . '/src/actions/class-autoresponder.php',
     'Core_Forms\\Actions\\Email' => $baseDir . '/src/actions/class-email.php',
     'Core_Forms\\Actions\\MailChimp' => $baseDir . '/src/actions/class-mailchimp.php',
     'Core_Forms\\Admin\\Admin' => $baseDir . '/src/admin/class-admin.php',

@@ -3,7 +3,7 @@
 Plugin Name: Core Forms
 Plugin URI: https://gauravtiwari.org/plugins/core-forms
 Description: A simpler, faster, and smarter WordPress forms plugin with premium features included.
-Version: 3.0.0
+Version: 3.0.11
 Author: Gaurav Tiwari
 Author URI: https://gauravtiwari.org
 License: GPL v3
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'CORE_FORMS_VERSION', '3.0.0' );
+define( 'CORE_FORMS_VERSION', '3.0.11' );
 define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -154,6 +154,9 @@ function _load_premium_features() {
 function _cf_actions() {
     $email_action = new Actions\Email();
     $email_action->hook();
+
+    $autoresponder_action = new Actions\AutoResponder();
+    $autoresponder_action->hook();
 
     if ( \class_exists( 'MC4WP_MailChimp' ) ) {
         $mailchimp_action = new Actions\MailChimp();

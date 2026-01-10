@@ -1,19 +1,19 @@
 <?php return array(
     'root' => array(
-        'name' => 'ibericode/html-forms',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '135f9c0f6ea2565f32945a70a102b9f904bd1234',
+        'name' => 'gauravtiwari/core-forms',
+        'pretty_version' => '3.0.6',
+        'version' => '3.0.6.0',
+        'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => false,
     ),
     'versions' => array(
-        'ibericode/html-forms' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '135f9c0f6ea2565f32945a70a102b9f904bd1234',
+        'gauravtiwari/core-forms' => array(
+            'pretty_version' => '3.0.5',
+            'version' => '3.0.5.0',
+            'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

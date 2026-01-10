@@ -149,7 +149,7 @@ class Admin
         <script type="text/javascript">
             (function () {
                 var notifications = <?php echo json_encode($notifications); ?>;
-                var menuEl = document.querySelector('.menu-top.toplevel_page_html-forms .wp-menu-name');
+                var menuEl = document.querySelector('.menu-top.toplevel_page_core-forms .wp-menu-name');
                 if (menuEl) {
                     menuEl.innerHTML = menuEl.innerHTML + ' <span class="update-plugins count-1"><span class="plugin-count"><?php echo $count; ?></span></span>';
                 }

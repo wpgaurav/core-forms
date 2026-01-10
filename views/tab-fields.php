@@ -91,17 +91,18 @@
 <!-- Code Editor Mode -->
 <div id="cf-code-editor" class="cf-builder-mode" role="tabpanel" aria-labelledby="cf-mode-code" hidden>
     <div class="cf-row">
-        <div class="cf-col" style="min-width: 600px;">
+        <div class="cf-col" style="flex: 1; min-width: 500px;">
             <h4>
                 <label for="cf-form-editor"><?php _e('Form Code', 'core-forms'); ?></label>
             </h4>
-            <textarea id="cf-form-editor" class="widefat" name="form[markup]" cols="160" rows="20" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="cf-form-editor-desc"><?php echo htmlspecialchars($form->markup, ENT_QUOTES, get_option('blog_charset')); ?></textarea>
+            <div class="cf-code-wrapper">
+                <pre class="cf-code-highlight language-markup"><code id="cf-code-display" class="language-markup"></code></pre>
+                <textarea id="cf-form-editor" name="form[markup]" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="cf-form-editor-desc"><?php echo htmlspecialchars($form->markup, ENT_QUOTES, get_option('blog_charset')); ?></textarea>
+            </div>
             <p id="cf-form-editor-desc" class="description"><?php _e('Write HTML markup for your form. Use standard form elements with name attributes.', 'core-forms'); ?></p>
         </div>
-        <div id="cf-form-preview-container" class="cf-col" style="min-width: 400px;">
-            <h4>
-                <label for="cf-form-preview"><?php _e('Form Preview', 'core-forms'); ?></label>
-            </h4>
+        <div id="cf-form-preview-container" class="cf-col" style="min-width: 350px;">
+            <h4><?php _e('Form Preview', 'core-forms'); ?></h4>
             <iframe id="cf-form-preview" src="<?php echo esc_attr($form_preview_url); ?>" title="<?php esc_attr_e('Form Preview', 'core-forms'); ?>" aria-describedby="cf-preview-desc"></iframe>
             <p id="cf-preview-desc" class="description"><?php esc_html_e('Preview may differ slightly from frontend display.', 'core-forms'); ?></p>
         </div>
@@ -158,6 +159,26 @@
                     <textarea id="field-{{id}}-options" class="widefat cf-input-options" rows="4" aria-describedby="field-{{id}}-options-desc">{{options}}</textarea>
                     <p id="field-{{id}}-options-desc" class="description"><?php _e('One option per line. Use value|label format for different values.', 'core-forms'); ?></p>
                 </td>
+            </tr>
+            <tr class="cf-setting-multiple">
+                <th><?php _e('Selection', 'core-forms'); ?></th>
+                <td><label><input type="checkbox" class="cf-input-multiple" {{multiple}} /> <?php _e('Allow multiple selections', 'core-forms'); ?></label></td>
+            </tr>
+            <tr class="cf-setting-rows">
+                <th><label for="field-{{id}}-rows"><?php _e('Rows', 'core-forms'); ?></label></th>
+                <td><input type="number" id="field-{{id}}-rows" class="small-text cf-input-rows" value="{{rows}}" min="2" max="20" /></td>
+            </tr>
+            <tr class="cf-setting-min">
+                <th><label for="field-{{id}}-min"><?php _e('Min Value', 'core-forms'); ?></label></th>
+                <td><input type="number" id="field-{{id}}-min" class="small-text cf-input-min" value="{{min}}" /></td>
+            </tr>
+            <tr class="cf-setting-max">
+                <th><label for="field-{{id}}-max"><?php _e('Max Value', 'core-forms'); ?></label></th>
+                <td><input type="number" id="field-{{id}}-max" class="small-text cf-input-max" value="{{max}}" /></td>
+            </tr>
+            <tr class="cf-setting-step">
+                <th><label for="field-{{id}}-step"><?php _e('Step', 'core-forms'); ?></label></th>
+                <td><input type="number" id="field-{{id}}-step" class="small-text cf-input-step" value="{{step}}" min="0.01" step="any" /></td>
             </tr>
             <tr class="cf-setting-required">
                 <th><?php _e('Required', 'core-forms'); ?></th>

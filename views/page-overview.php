@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) or exit;
 
 /**
- * @var HTML_Forms\Admin\Table $table
+ * @var Core_Forms\Admin\Table $table
  */
 ?>
 <div class="wrap cf">

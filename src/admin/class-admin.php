@@ -24,7 +24,6 @@ class Admin {
 	public function hook() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'init', array( $this, 'register_settings' ) );
-		add_action( 'admin_init', array( $this, 'run_migrations' ) );
 		add_action( 'admin_init', array( $this, 'listen' ) );
 		add_action( 'admin_print_styles', array( $this, 'assets' ) );
 		add_action( 'admin_head', array( $this, 'add_screen_options' ) );
@@ -74,36 +73,6 @@ class Admin {
 	public function register_settings() {
 		// register settings
 		register_setting( 'cf_settings', 'cf_settings', array( $this, 'sanitize_settings' ) );
-	}
-
-	public function run_migrations() {
-		$version_from = get_option( 'cf_version', '0.0' );
-		$version_to   = CORE_FORMS_VERSION;
-
-		// Always ensure any html-form posts are converted to core-form
-		$this->ensure_post_type_migrated();
-
-		if ( version_compare( $version_from, $version_to, '>=' ) ) {
-			return;
-		}
-
-		$migrations = new Migrations( $version_from, $version_to, dirname( $this->plugin_file ) . '/migrations' );
-		$migrations->run();
-		update_option( 'cf_version', CORE_FORMS_VERSION );
-	}
-
-	/**
-	 * Ensure all html-form posts are migrated to core-form
-	 */
-	private function ensure_post_type_migrated() {
-		global $wpdb;
-		$wpdb->query(
-			$wpdb->prepare(
-				"UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s",
-				'core-form',
-				'html-form'
-			)
-		);
 	}
 
 	/**
@@ -177,10 +146,11 @@ class Admin {
 			)
 		);
 
-		// Only load admin.js on pages that need it (pages with tabs, form builder, etc.)
-		// Exclude simple listing pages like spam management
-		$pages_needing_admin_js = array( 'core-forms', 'core-forms-add-form', 'core-forms-settings' );
-		$needs_admin_js = in_array( $current_page, $pages_needing_admin_js, true ) || ! empty( $_GET['form_id'] );
+		// Load admin.js only on pages that need legacy functionality (NOT form edit pages)
+		// Form edit pages use form-builder.js with plain textarea instead
+		$is_form_edit = ! empty( $_GET['form_id'] );
+		$pages_needing_admin_js = array( 'core-forms', 'core-forms-settings' );
+		$needs_admin_js = in_array( $current_page, $pages_needing_admin_js, true ) && ! $is_form_edit;
 
 		if ( $needs_admin_js ) {
 			wp_enqueue_script( 'core-forms-admin', plugins_url( 'assets/js/admin.js', $this->plugin_file ), array( 'core-forms-admin-ui' ), CORE_FORMS_VERSION, true );
@@ -190,42 +160,23 @@ class Admin {
 				array(
 					'page'    => $current_page,
 					'view'    => empty( $_GET['view'] ) ? '' : $_GET['view'],
-					'form_id' => empty( $_GET['form_id'] ) ? 0 : (int) $_GET['form_id'],
+					'form_id' => 0,
 					'wrapper_tag' => empty( $settings['wrapper_tag'] ) ? 'p' : $settings['wrapper_tag'],
 				)
 			);
 		}
 
-		// Enqueue WordPress code editor for form markup editing
-		if ( ! empty( $_GET['form_id'] ) || $_GET['page'] === 'core-forms-add-form' ) {
-			$settings = wp_enqueue_code_editor( array(
-				'type' => 'text/html',
-				'codemirror' => array(
-					'mode' => 'htmlmixed',
-					'lineNumbers' => true,
-					'lineWrapping' => true,
-					'indentUnit' => 2,
-					'tabSize' => 2,
-					'indentWithTabs' => true,
-				),
-			) );
+		// Enqueue form builder with PrismJS syntax highlighting
+		if ( $is_form_edit ) {
+			// PrismJS for syntax highlighting (local files)
+			wp_enqueue_style( 'prismjs', plugins_url( 'assets/css/prism.css', $this->plugin_file ), array(), CORE_FORMS_VERSION );
+			wp_enqueue_script( 'prismjs', plugins_url( 'assets/js/prism.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
+			wp_enqueue_script( 'prismjs-markup', plugins_url( 'assets/js/prism-markup.js', $this->plugin_file ), array( 'prismjs' ), CORE_FORMS_VERSION, true );
 
-			if ( $settings !== false ) {
-				wp_add_inline_script(
-					'code-editor',
-					sprintf(
-						'jQuery(function() {
-							if (jQuery("#cf-form-editor").length) {
-								wp.codeEditor.initialize("cf-form-editor", %s);
-							}
-						});',
-						wp_json_encode( $settings )
-					)
-				);
-			}
+			wp_enqueue_script( 'core-forms-builder', plugins_url( 'assets/js/form-builder.js', $this->plugin_file ), array( 'prismjs-markup' ), CORE_FORMS_VERSION, true );
 
-			// Enqueue form builder for drag-and-drop functionality
-			wp_enqueue_script( 'core-forms-builder', plugins_url( 'assets/js/form-builder.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
+			// Form actions management (add/remove actions)
+			wp_enqueue_script( 'core-forms-actions', plugins_url( 'assets/js/form-actions.js', $this->plugin_file ), array(), CORE_FORMS_VERSION, true );
 		}
 	}
 
