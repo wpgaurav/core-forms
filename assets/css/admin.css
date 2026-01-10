@@ -1144,3 +1144,111 @@ tr:first-of-type th.cf-settings-header:first-of-type {
     background: #fcf0f1;
     color: #d63638;
 }
+
+/* ============================================
+   Improved Tab Navigation
+   ============================================ */
+.wrap.cf .nav-tab-wrapper {
+    border-bottom: 2px solid #c3c4c7;
+    padding: 0;
+    margin: 0 0 20px 0;
+    display: flex;
+    gap: 4px;
+}
+
+.wrap.cf .nav-tab {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    color: #50575e;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    text-decoration: none;
+    margin-bottom: -2px;
+    transition: all 0.15s ease;
+}
+
+.wrap.cf .nav-tab:hover {
+    background: #fff;
+    color: #1d2327;
+}
+
+.wrap.cf .nav-tab:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: -2px;
+}
+
+.wrap.cf .nav-tab-active,
+.wrap.cf .nav-tab-active:hover {
+    background: #fff;
+    border-bottom-color: #fff;
+    color: #1d2327;
+    font-weight: 600;
+}
+
+/* ============================================
+   Variables Reference Section
+   ============================================ */
+.cf-variables-reference {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 24px 0;
+}
+
+.cf-variables-reference h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.cf-variables-reference > .description {
+    margin-bottom: 16px;
+}
+
+.cf-variables-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .cf-variables-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cf-variable-group {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 16px;
+}
+
+.cf-variable-group h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.cf-variable-group code {
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #1d2327;
+}
+
+.cf-variable-group .cf-field-names {
+    display: block;
+    line-height: 2;
+}
+
+.cf-variable-group .cf-field-names code {
+    display: inline-block;
+    margin: 2px 4px 2px 0;
+}

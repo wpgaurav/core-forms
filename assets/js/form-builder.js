@@ -833,6 +833,39 @@
             }).join('\n');
         }
 
+        // Populate field names for variables reference
+        function updateFieldNames() {
+            var fieldNameEls = document.querySelectorAll('.cf-field-names');
+            if (fieldNameEls.length === 0) return;
+
+            var names = [];
+            var markup = editor.value;
+
+            // Parse field names from markup
+            var nameMatches = markup.match(/name="([^"]+)"/g);
+            if (nameMatches) {
+                nameMatches.forEach(function(match) {
+                    var name = match.replace(/name="([^"]+)"/, '$1').replace('[]', '');
+                    if (name && names.indexOf(name) === -1 && name !== 'action') {
+                        names.push(name);
+                    }
+                });
+            }
+
+            var html = names.length > 0
+                ? names.map(function(n) { return '<code>[' + n + ']</code>'; }).join(' ')
+                : '<em>No fields detected yet</em>';
+
+            fieldNameEls.forEach(function(el) {
+                el.innerHTML = html;
+            });
+        }
+
+        // Update field names when content changes
+        editor.addEventListener('input', function() {
+            updateFieldNames();
+        });
+
         // CRITICAL: Multiple ways to ensure sync before save
 
         // 1. Capture submit event on document
@@ -910,8 +943,12 @@
             }
         }
 
-        // Initial highlight
+        // Initial highlight and field names
         updateHighlight();
+        updateFieldNames();
+
+        // Expose updateFieldNames globally for form-actions.js
+        window.cfUpdateFieldNames = updateFieldNames;
 
         console.log('Core Forms Builder initialized successfully');
     }

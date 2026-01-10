@@ -46,7 +46,7 @@
                 <?php _e( 'Leave empty or enter <code>0</code> for no redirect. Otherwise, use complete (absolute) URLs, including <code>http://</code>.', 'core-forms' ); ?>
             </p>
             <p class="description">
-                <?php _e( 'You can use the following variables in the redirect URL: ', 'core-forms' ); ?><br /><span class="cf-field-names"></span>
+                <?php _e( 'Available variables:', 'core-forms' ); ?> <span class="cf-field-names"></span> <code>[CF_FORM_ID]</code> <code>[CF_TIMESTAMP]</code>
             </p>
         </td>
     </tr>

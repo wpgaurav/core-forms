@@ -53,6 +53,29 @@ $available_actions = $this->get_available_form_actions();
     </p>
 </div>
 
+<div class="cf-variables-reference">
+    <h3><?php _e( 'Available Variables', 'core-forms' ); ?></h3>
+    <p class="description"><?php _e( 'Use these variables in your action settings (email body, webhook URL, etc.):', 'core-forms' ); ?></p>
+    <div class="cf-variables-grid">
+        <div class="cf-variable-group">
+            <h4><?php _e( 'Form Fields', 'core-forms' ); ?></h4>
+            <p class="description"><?php _e( 'Field values from submissions:', 'core-forms' ); ?></p>
+            <code class="cf-field-names"><?php _e( 'Loading...', 'core-forms' ); ?></code>
+        </div>
+        <div class="cf-variable-group">
+            <h4><?php _e( 'System Variables', 'core-forms' ); ?></h4>
+            <code>[CF_FORM_ID]</code> - <?php _e( 'Form ID', 'core-forms' ); ?><br>
+            <code>[CF_FORM_TITLE]</code> - <?php _e( 'Form title', 'core-forms' ); ?><br>
+            <code>[CF_TIMESTAMP]</code> - <?php _e( 'Submission time', 'core-forms' ); ?><br>
+            <code>[CF_IP_ADDRESS]</code> - <?php _e( 'User IP address', 'core-forms' ); ?><br>
+            <code>[CF_USER_AGENT]</code> - <?php _e( 'Browser info', 'core-forms' ); ?><br>
+            <code>[CF_REFERER]</code> - <?php _e( 'Referring URL', 'core-forms' ); ?><br>
+            <code>[all]</code> - <?php _e( 'All fields (name: value)', 'core-forms' ); ?><br>
+            <code>[all:label]</code> - <?php _e( 'All fields (label: value)', 'core-forms' ); ?>
+        </div>
+    </div>
+</div>
+
 <div>
     <?php submit_button(); ?>
 </div>

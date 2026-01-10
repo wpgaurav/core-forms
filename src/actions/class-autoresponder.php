@@ -85,9 +85,8 @@ class AutoResponder extends Action {
                     <textarea name="form[settings][actions][<?php echo $index; ?>][message]" rows="10" class="widefat" required><?php echo esc_textarea( $settings['message'] ); ?></textarea>
                     <p class="help">
                         <?php _e( 'Available variables:', 'core-forms' ); ?><br />
-                        <code>[all]</code> - <?php _e( 'All submitted data', 'core-forms' ); ?><br />
-                        <code>[field_name]</code> - <?php _e( 'Value of a specific field', 'core-forms' ); ?><br />
                         <span class="cf-field-names"></span>
+                        <code>[all]</code> <code>[all:label]</code> <code>[CF_FORM_ID]</code> <code>[CF_TIMESTAMP]</code> <code>[CF_IP_ADDRESS]</code>
                     </p>
                 </td>
             </tr>

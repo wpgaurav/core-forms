@@ -74,6 +74,13 @@
 
         updateEmptyState();
 
+        // Update field names in existing actions (after short delay to ensure form-builder.js has initialized)
+        setTimeout(function() {
+            if (typeof window.cfUpdateFieldNames === 'function') {
+                window.cfUpdateFieldNames();
+            }
+        }, 100);
+
         addButtons.addEventListener('click', function(e) {
             if (e.target.tagName !== 'INPUT' || e.target.type !== 'button') {
                 return;
@@ -111,6 +118,11 @@
 
             createAccordion(actionEl);
             updateEmptyState();
+
+            // Update field names in the new action template
+            if (typeof window.cfUpdateFieldNames === 'function') {
+                window.cfUpdateFieldNames();
+            }
         });
     }
 

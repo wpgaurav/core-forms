@@ -67,7 +67,9 @@ class Email extends Action {
                <th><label><?php echo __( 'Message', 'core-forms' ); ?> <span class="cf-required">*</span></label></th>
                <td>
                    <textarea name="form[settings][actions][<?php echo $index; ?>][message]" rows="8" class="widefat" placeholder="<?php echo esc_attr( __( 'Your email message', 'core-forms' ) ); ?>" required><?php echo esc_textarea( $settings['message'] ); ?></textarea>
-                   <p class="help"><?php _e( 'You can use the following variables (in all fields): ', 'core-forms' ); ?><br /><span class="cf-field-names"></span></p>
+                   <p class="help"><?php _e( 'Available variables:', 'core-forms' ); ?><br />
+                   <span class="cf-field-names"></span>
+                   <code>[all]</code> <code>[all:label]</code> <code>[CF_FORM_ID]</code> <code>[CF_TIMESTAMP]</code> <code>[CF_IP_ADDRESS]</code></p>
                </td>
            </tr>
 
