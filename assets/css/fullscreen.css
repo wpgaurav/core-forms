@@ -1,0 +1,1097 @@
+/**
+ * Core Forms - Fullscreen (Typeform-style) Forms
+ * One question at a time with smooth transitions
+ */
+
+/* ===================================
+   Fullscreen Container
+   =================================== */
+
+.cf-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.cf-fullscreen-overlay * {
+    box-sizing: border-box;
+}
+
+/* ===================================
+   Theme: Light
+   =================================== */
+
+.cf-fullscreen-overlay.cf-theme-light {
+    background: #ffffff;
+    color: #191919;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-question-number {
+    color: #6e6e6e;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-input,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-textarea,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-select {
+    border-color: #c4c4c4;
+    background: #fff;
+    color: #191919;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-input:focus,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-textarea:focus,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-select:focus {
+    border-color: #0445af;
+    box-shadow: 0 0 0 3px rgba(4, 69, 175, 0.15);
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-next,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-submit {
+    background: #0445af;
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-next:hover,
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-submit:hover {
+    background: #033a94;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-back {
+    color: #6e6e6e;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-btn-back:hover {
+    color: #191919;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-progress-bar {
+    background: #e6e6e6;
+}
+
+.cf-fullscreen-overlay.cf-theme-light .cf-fs-progress-fill {
+    background: #0445af;
+}
+
+/* ===================================
+   Theme: Dark
+   =================================== */
+
+.cf-fullscreen-overlay.cf-theme-dark {
+    background: #1a1a2e;
+    color: #eaeaea;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-question-number {
+    color: #8a8a9a;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-input,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-textarea,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-select {
+    border-color: #3a3a5a;
+    background: #252542;
+    color: #eaeaea;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-input:focus,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-textarea:focus,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-select:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-next,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-submit {
+    background: #6c63ff;
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-next:hover,
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-submit:hover {
+    background: #5a52d5;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-back {
+    color: #8a8a9a;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-btn-back:hover {
+    color: #eaeaea;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-progress-bar {
+    background: #3a3a5a;
+}
+
+.cf-fullscreen-overlay.cf-theme-dark .cf-fs-progress-fill {
+    background: #6c63ff;
+}
+
+/* ===================================
+   Theme: Gradient Blue
+   =================================== */
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-question-number {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-input,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-textarea,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-select {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-input::placeholder,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-input:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-textarea:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-select:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-next,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-submit {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-next:hover,
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-submit:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-back {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-btn-back:hover {
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-blue .cf-fs-progress-fill {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* ===================================
+   Theme: Gradient Purple
+   =================================== */
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #ffffff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-question-number {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-input,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-textarea,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-select {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-input::placeholder,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-input:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-textarea:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-select:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-next,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-submit {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-next:hover,
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-submit:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-back {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-btn-back:hover {
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-purple .cf-fs-progress-fill {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* ===================================
+   Theme: Gradient Green
+   =================================== */
+
+.cf-fullscreen-overlay.cf-theme-gradient-green {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: #ffffff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-question-number {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-input,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-textarea,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-select {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-input::placeholder,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-input:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-textarea:focus,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-select:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-next,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-submit {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-next:hover,
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-submit:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-back {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-btn-back:hover {
+    color: #fff;
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fullscreen-overlay.cf-theme-gradient-green .cf-fs-progress-fill {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* ===================================
+   Header & Progress
+   =================================== */
+
+.cf-fs-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.cf-fs-progress {
+    flex: 1;
+    max-width: 200px;
+}
+
+.cf-fs-progress-bar {
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.cf-fs-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.cf-fs-progress-text {
+    font-size: 12px;
+    margin-top: 6px;
+    opacity: 0.7;
+}
+
+.cf-fs-close {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+    opacity: 0.7;
+}
+
+.cf-fs-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.cf-theme-dark .cf-fs-close:hover,
+.cf-theme-gradient-blue .cf-fs-close:hover,
+.cf-theme-gradient-purple .cf-fs-close:hover,
+.cf-theme-gradient-green .cf-fs-close:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.cf-fs-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.cf-theme-light .cf-fs-close svg {
+    stroke: #191919;
+}
+
+.cf-theme-dark .cf-fs-close svg,
+.cf-theme-gradient-blue .cf-fs-close svg,
+.cf-theme-gradient-purple .cf-fs-close svg,
+.cf-theme-gradient-green .cf-fs-close svg {
+    stroke: #ffffff;
+}
+
+/* ===================================
+   Questions Container
+   =================================== */
+
+.cf-fs-questions {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 30px 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cf-fs-question {
+    position: absolute;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 20px;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.cf-fs-question.cf-fs-active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+}
+
+/* Animation: Slide */
+.cf-animation-slide .cf-fs-question {
+    transform: translateY(60px);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.cf-animation-slide .cf-fs-question.cf-fs-active {
+    transform: translateY(0);
+}
+
+.cf-animation-slide .cf-fs-question.cf-fs-exit-up {
+    transform: translateY(-60px);
+}
+
+.cf-animation-slide .cf-fs-question.cf-fs-exit-down {
+    transform: translateY(60px);
+}
+
+/* Animation: Fade */
+.cf-animation-fade .cf-fs-question {
+    transition: opacity 0.4s ease;
+}
+
+/* Animation: Scale */
+.cf-animation-scale .cf-fs-question {
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.cf-animation-scale .cf-fs-question.cf-fs-active {
+    transform: scale(1);
+}
+
+.cf-animation-scale .cf-fs-question.cf-fs-exit-up,
+.cf-animation-scale .cf-fs-question.cf-fs-exit-down {
+    transform: scale(0.9);
+}
+
+/* ===================================
+   Question Content
+   =================================== */
+
+.cf-fs-question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.cf-fs-question-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.cf-theme-light .cf-fs-question-number {
+    background: #eee;
+    color: #191919;
+}
+
+.cf-theme-dark .cf-fs-question-number {
+    background: #6c63ff;
+    color: #fff;
+}
+
+.cf-theme-gradient-blue .cf-fs-question-number,
+.cf-theme-gradient-purple .cf-fs-question-number,
+.cf-theme-gradient-green .cf-fs-question-number {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.cf-fs-question-label {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.cf-fs-question-required {
+    color: #e74c3c;
+    margin-left: 4px;
+}
+
+.cf-fs-question-description {
+    font-size: 16px;
+    opacity: 0.7;
+    margin-top: -16px;
+    margin-bottom: 24px;
+}
+
+/* ===================================
+   Form Inputs
+   =================================== */
+
+.cf-fs-input-wrap {
+    width: 100%;
+}
+
+.cf-fs-input,
+.cf-fs-textarea,
+.cf-fs-select {
+    width: 100%;
+    font-size: 20px;
+    padding: 16px 20px;
+    border: 2px solid;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.cf-fs-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.cf-fs-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+    padding-right: 50px;
+}
+
+/* Checkbox & Radio Options */
+.cf-fs-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.cf-fs-option {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cf-theme-light .cf-fs-option {
+    border-color: #e0e0e0;
+    background: #fafafa;
+}
+
+.cf-theme-light .cf-fs-option:hover {
+    border-color: #0445af;
+    background: #f0f5ff;
+}
+
+.cf-theme-light .cf-fs-option.cf-fs-selected {
+    border-color: #0445af;
+    background: #e8f0fe;
+}
+
+.cf-theme-dark .cf-fs-option {
+    border-color: #3a3a5a;
+    background: #252542;
+}
+
+.cf-theme-dark .cf-fs-option:hover {
+    border-color: #6c63ff;
+    background: #2a2a4a;
+}
+
+.cf-theme-dark .cf-fs-option.cf-fs-selected {
+    border-color: #6c63ff;
+    background: #35356a;
+}
+
+.cf-theme-gradient-blue .cf-fs-option,
+.cf-theme-gradient-purple .cf-fs-option,
+.cf-theme-gradient-green .cf-fs-option {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cf-theme-gradient-blue .cf-fs-option:hover,
+.cf-theme-gradient-purple .cf-fs-option:hover,
+.cf-theme-gradient-green .cf-fs-option:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-theme-gradient-blue .cf-fs-option.cf-fs-selected,
+.cf-theme-gradient-purple .cf-fs-option.cf-fs-selected,
+.cf-theme-gradient-green .cf-fs-option.cf-fs-selected {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.cf-fs-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cf-fs-option-indicator {
+    width: 22px;
+    height: 22px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    margin-right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.cf-fs-option[data-type="checkbox"] .cf-fs-option-indicator {
+    border-radius: 4px;
+}
+
+.cf-fs-option.cf-fs-selected .cf-fs-option-indicator::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.cf-fs-option[data-type="checkbox"].cf-fs-selected .cf-fs-option-indicator::after {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: none;
+    border-bottom: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    transform: rotate(45deg) translate(-1px, -2px);
+}
+
+.cf-theme-light .cf-fs-option-indicator {
+    border-color: #c4c4c4;
+}
+
+.cf-theme-light .cf-fs-option.cf-fs-selected .cf-fs-option-indicator {
+    border-color: #0445af;
+}
+
+.cf-theme-light .cf-fs-option.cf-fs-selected .cf-fs-option-indicator::after {
+    background: #0445af;
+}
+
+.cf-theme-light .cf-fs-option[data-type="checkbox"].cf-fs-selected .cf-fs-option-indicator::after {
+    background: none;
+    border-color: #0445af;
+}
+
+.cf-theme-dark .cf-fs-option-indicator {
+    border-color: #5a5a7a;
+}
+
+.cf-theme-dark .cf-fs-option.cf-fs-selected .cf-fs-option-indicator {
+    border-color: #6c63ff;
+}
+
+.cf-theme-dark .cf-fs-option.cf-fs-selected .cf-fs-option-indicator::after {
+    background: #6c63ff;
+}
+
+.cf-theme-dark .cf-fs-option[data-type="checkbox"].cf-fs-selected .cf-fs-option-indicator::after {
+    background: none;
+    border-color: #6c63ff;
+}
+
+.cf-fs-option-text {
+    font-size: 18px;
+}
+
+.cf-fs-option-key {
+    margin-left: auto;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    opacity: 0.6;
+}
+
+.cf-theme-light .cf-fs-option-key {
+    background: #e8e8e8;
+}
+
+.cf-theme-dark .cf-fs-option-key {
+    background: #3a3a5a;
+}
+
+.cf-theme-gradient-blue .cf-fs-option-key,
+.cf-theme-gradient-purple .cf-fs-option-key,
+.cf-theme-gradient-green .cf-fs-option-key {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===================================
+   Navigation Buttons
+   =================================== */
+
+.cf-fs-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.cf-fs-btn-next,
+.cf-fs-btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cf-fs-btn-next:disabled,
+.cf-fs-btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cf-fs-btn-next svg,
+.cf-fs-btn-submit svg {
+    width: 18px;
+    height: 18px;
+}
+
+.cf-fs-btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.cf-fs-btn-back svg {
+    width: 18px;
+    height: 18px;
+}
+
+.cf-fs-keyboard-hint {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-left: 8px;
+}
+
+/* ===================================
+   Footer Navigation
+   =================================== */
+
+.cf-fs-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.cf-fs-nav-arrows {
+    display: flex;
+    gap: 8px;
+}
+
+.cf-fs-nav-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.cf-fs-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.cf-theme-light .cf-fs-nav-btn {
+    border-color: #c4c4c4;
+}
+
+.cf-theme-light .cf-fs-nav-btn:hover:not(:disabled) {
+    border-color: #0445af;
+    background: #f0f5ff;
+}
+
+.cf-theme-dark .cf-fs-nav-btn {
+    border-color: #4a4a6a;
+}
+
+.cf-theme-dark .cf-fs-nav-btn:hover:not(:disabled) {
+    border-color: #6c63ff;
+    background: #35356a;
+}
+
+.cf-theme-gradient-blue .cf-fs-nav-btn,
+.cf-theme-gradient-purple .cf-fs-nav-btn,
+.cf-theme-gradient-green .cf-fs-nav-btn {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.cf-theme-gradient-blue .cf-fs-nav-btn:hover:not(:disabled),
+.cf-theme-gradient-purple .cf-fs-nav-btn:hover:not(:disabled),
+.cf-theme-gradient-green .cf-fs-nav-btn:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.cf-fs-nav-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.cf-theme-light .cf-fs-nav-btn svg {
+    stroke: #191919;
+}
+
+.cf-theme-dark .cf-fs-nav-btn svg,
+.cf-theme-gradient-blue .cf-fs-nav-btn svg,
+.cf-theme-gradient-purple .cf-fs-nav-btn svg,
+.cf-theme-gradient-green .cf-fs-nav-btn svg {
+    stroke: #ffffff;
+}
+
+.cf-fs-powered {
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.cf-fs-powered a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.cf-fs-powered a:hover {
+    text-decoration: underline;
+}
+
+/* ===================================
+   Success Screen
+   =================================== */
+
+.cf-fs-success {
+    text-align: center;
+    max-width: 500px;
+}
+
+.cf-fs-success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cf-theme-light .cf-fs-success-icon {
+    background: #d4edda;
+}
+
+.cf-theme-dark .cf-fs-success-icon {
+    background: #1e4620;
+}
+
+.cf-theme-gradient-blue .cf-fs-success-icon,
+.cf-theme-gradient-purple .cf-fs-success-icon,
+.cf-theme-gradient-green .cf-fs-success-icon {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.cf-fs-success-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.cf-theme-light .cf-fs-success-icon svg {
+    stroke: #28a745;
+}
+
+.cf-theme-dark .cf-fs-success-icon svg,
+.cf-theme-gradient-blue .cf-fs-success-icon svg,
+.cf-theme-gradient-purple .cf-fs-success-icon svg,
+.cf-theme-gradient-green .cf-fs-success-icon svg {
+    stroke: #ffffff;
+}
+
+.cf-fs-success-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.cf-fs-success-message {
+    font-size: 18px;
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+/* ===================================
+   Error Message
+   =================================== */
+
+.cf-fs-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.cf-theme-dark .cf-fs-error {
+    background: #5a1e1e;
+    color: #f8d7da;
+}
+
+.cf-theme-gradient-blue .cf-fs-error,
+.cf-theme-gradient-purple .cf-fs-error,
+.cf-theme-gradient-green .cf-fs-error {
+    background: rgba(220, 53, 69, 0.3);
+    color: #fff;
+}
+
+/* ===================================
+   Loading State
+   =================================== */
+
+.cf-fs-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cf-fs-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: cf-fs-spin 0.8s linear infinite;
+}
+
+@keyframes cf-fs-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
+
+@media (max-width: 768px) {
+    .cf-fs-header {
+        padding: 16px 20px;
+    }
+
+    .cf-fs-questions {
+        padding: 70px 20px 120px;
+    }
+
+    .cf-fs-question-label {
+        font-size: 22px;
+    }
+
+    .cf-fs-input,
+    .cf-fs-textarea,
+    .cf-fs-select {
+        font-size: 16px;
+        padding: 14px 16px;
+    }
+
+    .cf-fs-option {
+        padding: 14px 16px;
+    }
+
+    .cf-fs-option-text {
+        font-size: 16px;
+    }
+
+    .cf-fs-option-key {
+        display: none;
+    }
+
+    .cf-fs-btn-next,
+    .cf-fs-btn-submit {
+        padding: 12px 24px;
+        font-size: 15px;
+    }
+
+    .cf-fs-keyboard-hint {
+        display: none;
+    }
+
+    .cf-fs-footer {
+        padding: 16px 20px;
+    }
+
+    .cf-fs-success-title {
+        font-size: 26px;
+    }
+
+    .cf-fs-success-message {
+        font-size: 16px;
+    }
+}
+
+/* ===================================
+   Reduced Motion
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .cf-fs-question,
+    .cf-fs-progress-fill,
+    .cf-fs-option,
+    .cf-fs-input,
+    .cf-fs-btn-next,
+    .cf-fs-btn-submit,
+    .cf-fs-btn-back,
+    .cf-fs-nav-btn {
+        transition: none;
+    }
+}
+
+/* ===================================
+   Hide original form when fullscreen
+   =================================== */
+
+.cf-form.cf-form-fullscreen-source {
+    display: none !important;
+}

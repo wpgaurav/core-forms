@@ -512,6 +512,19 @@ function cf_get_admin_tabs( Form $form ) {
 }
 
 /**
+ * Run database migrations if needed
+ */
+function _cf_maybe_run_migrations() {
+    $db_version = get_option( 'cf_db_version', '1.0' );
+
+    // Migration 3.1.2: Add is_spam column
+    if ( version_compare( $db_version, '3.1.2', '<' ) ) {
+        _cf_create_submissions_table();
+        update_option( 'cf_db_version', '3.1.2' );
+    }
+}
+
+/**
  * Plugin activation handler
  */
 function _cf_on_plugin_activation() {
@@ -584,9 +597,16 @@ function _cf_create_submissions_table() {
         `user_agent` TEXT NULL,
         `ip_address` VARCHAR(255) NULL,
         `referer_url` TEXT NULL,
+        `is_spam` TINYINT(1) NOT NULL DEFAULT 0,
         `submitted_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) {$charset_collate};"
     );
+
+    // Add is_spam column if it doesn't exist (for existing installations)
+    $column_exists = $wpdb->get_results( "SHOW COLUMNS FROM {$table} LIKE 'is_spam'" );
+    if ( empty( $column_exists ) ) {
+        $wpdb->query( "ALTER TABLE {$table} ADD COLUMN `is_spam` TINYINT(1) NOT NULL DEFAULT 0 AFTER `referer_url`" );
+    }
 }
 
 /**

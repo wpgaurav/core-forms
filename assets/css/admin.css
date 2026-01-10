@@ -4,7 +4,13 @@
    Base Layout
    ============================================ */
 .wrap.cf {
-    max-width: 1200px;
+    max-width: 1600px;
+}
+
+@media (min-width: 1800px) {
+    .wrap.cf {
+        max-width: 1800px;
+    }
 }
 
 /* Breadcrumbs */

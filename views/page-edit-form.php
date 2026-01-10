@@ -48,6 +48,20 @@ $tabs = cf_get_admin_tabs($form);
                 </td>
             </tr>
 
+            <?php if ( isset( $form->settings['display_mode'] ) && $form->settings['display_mode'] === 'fullscreen' ) : ?>
+            <tr valign="top">
+                <th scope="row" style="width:80px;"><?php _e( 'Fullscreen URL', 'core-forms' ); ?></th>
+                <td>
+                    <?php $fullscreen_url = home_url( '?cf-form=' . $form->slug ); ?>
+                    <a href="<?php echo esc_url( $fullscreen_url ); ?>" target="_blank" class="cf-fullscreen-url" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <?php echo esc_html( $fullscreen_url ); ?>
+                        <span class="dashicons dashicons-external" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                    </a>
+                    <p class="description"><?php _e( 'Direct link to the standalone fullscreen form page.', 'core-forms' ); ?></p>
+                </td>
+            </tr>
+            <?php endif; ?>
+
         </table>
 
         <div class="cf-small-margin">

@@ -90,6 +90,11 @@ class Forms {
         wp_register_script( 'core-forms-a11y', $this->assets_url . 'js/accessibility.js', array( 'core-forms' ), CORE_FORMS_VERSION, true );
 
         wp_register_style( 'core-forms', $this->assets_url . 'css/forms.css', array(), CORE_FORMS_VERSION );
+
+        // Register fullscreen form assets
+        wp_register_style( 'core-forms-fullscreen', $this->assets_url . 'css/fullscreen.css', array(), CORE_FORMS_VERSION );
+        wp_register_script( 'core-forms-fullscreen', $this->assets_url . 'js/fullscreen.js', array( 'core-forms' ), CORE_FORMS_VERSION, true );
+
         add_filter( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_stylesheet' ) );
     }
 
