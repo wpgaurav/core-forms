@@ -48,6 +48,7 @@ All premium features are now included in the core plugin - no add-ons required!
 * `Core_Forms` namespace for all classes
 * `cf_*` function prefix for all public functions
 * PSR-4 compatible autoloading
+* Forked from HTML Forms - a performance packed contact form plugin.
 
 = Requirements =
 
@@ -83,17 +84,12 @@ Yes! Core Forms includes a Gutenberg block for easy form insertion.
 
 == Changelog ==
 
-= 2.0.0 =
+= 3.0.0 =
 * Complete rebrand from HTML Forms to Core Forms
 * All premium features now included in core plugin
 * Updated namespace to `Core_Forms`
 * Updated function prefix to `cf_`
 * Updated shortcode to `[cf_form]`
 * Updated block to `core-forms/form`
-* Removed licensing module (all features free)
+* New Features
 * Performance improvements and code cleanup
-
-== Upgrade Notice ==
-
-= 2.0.0 =
-Major update with rebranding. All premium features are now free! Automatic migration handles database and settings updates.
