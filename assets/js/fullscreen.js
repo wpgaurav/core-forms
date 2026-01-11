@@ -91,24 +91,48 @@
 
         findLabel(container, input) {
             let labelText = '';
+            const inputType = input.getAttribute('type');
+            const isChoiceField = inputType === 'checkbox' || inputType === 'radio';
 
-            // Try finding associated label
-            const id = input.getAttribute('id');
-            if (id) {
-                const label = this.form.querySelector(`label[for="${id}"]`);
-                if (label) labelText = label.textContent.trim();
+            // For fieldsets, check for legend first (common for checkbox/radio groups)
+            if (container.tagName === 'FIELDSET') {
+                const legend = container.querySelector('legend');
+                if (legend) labelText = legend.textContent.trim();
             }
 
-            // Try finding label within container
+            // Try finding associated label by id (but not for choice fields where id points to first option)
+            if (!labelText && !isChoiceField) {
+                const id = input.getAttribute('id');
+                if (id) {
+                    const label = this.form.querySelector(`label[for="${id}"]`);
+                    if (label) labelText = label.textContent.trim();
+                }
+            }
+
+            // Try finding a standalone label within container (one that doesn't wrap an input)
             if (!labelText) {
-                const label = container.querySelector('label');
-                if (label) labelText = label.textContent.trim();
+                const labels = container.querySelectorAll('label');
+                for (const label of labels) {
+                    // Skip labels that wrap inputs (these are option labels for checkboxes/radios)
+                    if (!label.querySelector('input')) {
+                        // Also skip labels with for="" that point to inputs in this container
+                        const forAttr = label.getAttribute('for');
+                        if (forAttr) {
+                            const targetInput = container.querySelector(`#${CSS.escape(forAttr)}`);
+                            if (targetInput && (targetInput.type === 'checkbox' || targetInput.type === 'radio')) {
+                                continue; // This label is for a specific checkbox/radio option
+                            }
+                        }
+                        labelText = label.textContent.trim();
+                        break;
+                    }
+                }
             }
 
-            // Try finding preceding label
+            // Try finding preceding label or legend
             if (!labelText) {
                 const prev = container.previousElementSibling;
-                if (prev && prev.tagName === 'LABEL') {
+                if (prev && (prev.tagName === 'LABEL' || prev.tagName === 'LEGEND')) {
                     labelText = prev.textContent.trim();
                 }
             }
@@ -355,7 +379,7 @@
 
             // Option selection styling
             this.overlay.querySelectorAll('.cf-fs-option').forEach(option => {
-                option.addEventListener('click', (e) => {
+                option.addEventListener('click', () => {
                     const input = option.querySelector('input');
                     const type = option.dataset.type;
 
