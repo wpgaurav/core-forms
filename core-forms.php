@@ -13,7 +13,11 @@ Requires at least: 6.0
 Requires PHP: 7.4
 
 Core Forms
-Copyright (C) 2017-2026, Gaurav Tiwari <hello@gauravtiwari.org>
+Copyright (C) 2026, Gaurav Tiwari <gaurav@gauravtiwari.org>
+
+Based on HTML Forms plugin by ibericode.
+
+Copyright (C) 2017-2026, ibericode <ibericode@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

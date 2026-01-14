@@ -1,0 +1,77 @@
+name: Build Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build Plugin Zip
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install Composer dependencies (production only)
+        run: composer install --no-dev --optimize-autoloader --prefer-dist
+
+      - name: Get plugin version
+        id: version
+        run: |
+          VERSION=$(grep -m1 "Version:" core-forms.php | awk '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create plugin directory
+        run: |
+          mkdir -p build/core-forms
+
+      - name: Copy plugin files
+        run: |
+          # Copy only necessary files for the plugin
+          cp -r assets build/core-forms/
+          cp -r extensions build/core-forms/
+          cp -r src build/core-forms/
+          cp -r vendor build/core-forms/
+          cp -r views build/core-forms/
+          cp core-forms.php build/core-forms/
+          cp readme.txt build/core-forms/
+          cp LICENSE build/core-forms/
+
+      - name: Remove unnecessary files from build
+        run: |
+          # Remove any hidden files that may have been copied
+          find build/core-forms -name ".*" -type f -delete
+          find build/core-forms -name ".DS_Store" -delete
+          
+          # Remove development files if any exist
+          find build/core-forms -name "*.md" -type f ! -name "readme.md" -delete
+          find build/core-forms -name "phpunit.xml*" -delete
+          find build/core-forms -name "phpcs.xml*" -delete
+          find build/core-forms -name "composer.json" -delete
+          find build/core-forms -name "composer.lock" -delete
+          find build/core-forms -name "package.json" -delete
+          find build/core-forms -name "package-lock.json" -delete
+          find build/core-forms -name "*.map" -delete
+          
+          # Remove test directories
+          rm -rf build/core-forms/tests
+          rm -rf build/core-forms/node_modules
+
+      - name: Create zip file
+        run: |
+          cd build
+          zip -r core-forms-${{ steps.version.outputs.version }}.zip core-forms
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/core-forms-${{ steps.version.outputs.version }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
