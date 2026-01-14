@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Core Forms is a lightweight WordPress forms plugin (v2.0.19) that allows users to create forms using plain HTML with AJAX submission handling. All premium features are bundled in the core plugin. Forms are stored as a custom post type (`core-form`) with submissions saved to a custom database table (`wp_cf_submissions`).
+Core Forms is a lightweight WordPress forms plugin (v3.2.2) that allows users to create forms using plain HTML with AJAX submission handling. All premium features are bundled in the core plugin. Forms are stored as a custom post type (`core-form`) with submissions saved to a custom database table (`wp_cf_submissions`).
 
 ## Key Commands
 
@@ -33,28 +33,42 @@ wp i18n make-pot . languages/core-forms.pot --domain=core-forms
 - **`Forms`** (`class-forms.php`) - Main plugin class. Registers post type, shortcode, block, REST API, assets, and handles AJAX form processing via `process()` method
 - **`Form`** (`class-form.php`) - Form entity with properties: `ID`, `title`, `slug`, `markup`, `messages`, `settings`. The `get_html()` method renders the complete form with honeypot, nonce, and accessibility attributes
 - **`Submission`** (`class-submission.php`) - Submission entity with `from_object()` factory method
+- **`Reply`** (`class-reply.php`) - Email reply entity for submission conversations
 
 ### Admin Classes (src/admin/)
 - **`Admin`** - Admin pages, form CRUD operations, settings management
 - **`Recaptcha`** - Google reCAPTCHA v3 integration
+- **`Turnstile`** - Cloudflare Turnstile integration
 - **`MathCaptcha`** - Simple math-based spam protection
 - **`Akismet`** - Akismet spam filtering integration
 - **`Table`** - WP_List_Table extension for submissions listing
-- **`Migrations`** - Database schema migrations
+- **`AllSubmissions`** / **`AllSubmissionsTable`** - Global submissions view across all forms
+- **`SubmissionEditor`** - Individual submission editing
+- **`SubmissionReply`** - Reply to submissions via email
+- **`EmailLogs`** / **`EmailLogsTable`** - Email delivery tracking
 
 ### Actions (src/actions/)
 - **`Email`** - Sends email notifications on form submission
+- **`Autoresponder`** - Auto-reply emails to submitters
 - **`MailChimp`** - Subscribes to Mailchimp lists (requires MC4WP plugin)
+- **`Action`** - Base action class for custom actions
 
-### Premium Features (premium/)
+### Polls (src/polls/)
+- **`Poll`** - Poll entity class
+- **`Vote`** - Vote entity class
+- **`PollAdmin`** - Admin interface for polls
+- **`PollFrontend`** - Frontend poll rendering
+
+### Extensions (extensions/)
 Each feature is self-contained in its own directory:
 - `data-exporter/` - CSV export of submissions
 - `data-management/` - Advanced submission management
 - `file-upload/` - File upload field support
-- `webhooks/` - Send data to external APIs
-- `notifications/` - Admin notification badges
+- `webhooks/` - Send data to external APIs via `Action` class
+- `notifications/` - Admin notification badges via `Notifier` class
 - `submission-limit/` - Limit form submissions
 - `require-user-logged-in/` - Restrict forms to logged-in users
+- `fullscreen-forms/` - Typeform-style one-question-at-a-time interface
 
 ### Views (views/)
 Admin templates using WordPress admin UI patterns. Tab-based form editing: fields, messages, settings, actions, submissions.
@@ -84,12 +98,11 @@ cf_template($template)             // Process {{user.email}} style tags
 - `cf_submission_inserted` - After database insert
 - `cf_form_html` / `cf_form_markup` - Modify form output
 - `cf_process_form_action_{type}` - Custom action types
+- `cf_fullscreen_head` / `cf_fullscreen_footer` - Fullscreen form customization
 
 ### Database
 Custom table `wp_cf_submissions`:
 - `id`, `form_id`, `data` (JSON), `ip_address`, `user_agent`, `referer_url`, `is_spam`, `submitted_at`
-
-Migrations in `migrations/` directory are version-prefixed (e.g., `2.0.18-add-spam-column.php`).
 
 ## Development Notes
 
@@ -99,3 +112,4 @@ Migrations in `migrations/` directory are version-prefixed (e.g., `2.0.18-add-sp
 - Data variables in emails/redirects: `[field_name]`, `[CF_TIMESTAMP]`, `[all:label]`
 - Spam detection returns success response to trick bots but stores as spam
 - Capability: `edit_forms` (added to admin on activation)
+- Requires PHP 7.4+ and WordPress 6.0+

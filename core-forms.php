@@ -3,7 +3,7 @@
 Plugin Name: Core Forms
 Plugin URI: https://gauravtiwari.org/plugins/core-forms
 Description: A simpler, faster, and smarter WordPress forms plugin with premium features included.
-Version: 3.2.1
+Version: 3.2.2
 Author: Gaurav Tiwari
 Author URI: https://gauravtiwari.org
 License: GPL v3
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'CORE_FORMS_VERSION', '3.2.1' );
+define( 'CORE_FORMS_VERSION', '3.2.2' );
 define( 'CORE_FORMS_PLUGIN_FILE', __FILE__ );
 define( 'CORE_FORMS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CORE_FORMS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -115,46 +115,46 @@ function _bootstrap() {
     $poll_frontend = new Polls\PollFrontend( __FILE__ );
     $poll_frontend->hook();
 
-    // Load premium features (now integrated)
-    _load_premium_features();
+    // Load extensions
+    _load_extensions();
 
     // Initialize form actions
     _cf_actions();
 }
 
 /**
- * Load premium features - now integrated into core
+ * Load extensions
  */
-function _load_premium_features() {
-    $premium_path = CORE_FORMS_PLUGIN_PATH . 'premium/';
+function _load_extensions() {
+    $extensions_path = CORE_FORMS_PLUGIN_PATH . 'extensions/';
     
     // Data Exporter
     if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
-        require $premium_path . 'data-exporter/data-exporter.php';
+        require $extensions_path . 'data-exporter/data-exporter.php';
     }
     
     // Data Management
     if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
-        require $premium_path . 'data-management/data-management.php';
+        require $extensions_path . 'data-management/data-management.php';
     }
     
     // Webhooks
-    require $premium_path . 'webhooks/webhooks.php';
+    require $extensions_path . 'webhooks/webhooks.php';
     
     // File Upload
-    require $premium_path . 'file-upload/file-upload.php';
+    require $extensions_path . 'file-upload/file-upload.php';
     
     // Notifications
-    require $premium_path . 'notifications/notifications.php';
+    require $extensions_path . 'notifications/notifications.php';
     
     // Submission Limit
-    require $premium_path . 'submission-limit/submission-limit.php';
+    require $extensions_path . 'submission-limit/submission-limit.php';
     
     // Require User Logged In
-    require $premium_path . 'require-user-logged-in/require-user-logged-in.php';
+    require $extensions_path . 'require-user-logged-in/require-user-logged-in.php';
 
     // Fullscreen Forms (Typeform-style)
-    require $premium_path . 'fullscreen-forms/fullscreen-forms.php';
+    require $extensions_path . 'fullscreen-forms/fullscreen-forms.php';
 }
 
 /**
