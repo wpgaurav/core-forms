@@ -86,7 +86,6 @@ Yes! Core Forms includes a Gutenberg block for easy form insertion.
 
 = 3.0.0 =
 * Complete rebrand from HTML Forms to Core Forms
-* All premium features now included in core plugin
 * Updated namespace to `Core_Forms`
 * Updated function prefix to `cf_`
 * Updated shortcode to `[cf_form]`
